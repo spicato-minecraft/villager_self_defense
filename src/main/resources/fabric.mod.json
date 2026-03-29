@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "villager_self_defense",
+	"version": "${version}",
+	"name": "Villager Self Defense",
+	"description": "Villager defensive behavior for Fabric.",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/villager_self_defense/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"villager_self_defense.VillagerSelfDefense"
+		],
+		"client": [
+			"villager_self_defense.VillagerSelfDefenseClient"
+		]
+	},
+	"mixins": [
+		"villager_self_defense.mixins.json",
+		{
+			"config": "villager_self_defense.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.5",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

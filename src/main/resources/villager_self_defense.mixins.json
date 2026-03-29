@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "villager_self_defense.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"VillagerMixin",
+		"MerchantMenuAccessor"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
