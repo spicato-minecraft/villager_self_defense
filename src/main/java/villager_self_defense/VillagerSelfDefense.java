@@ -25,6 +25,6 @@ public class VillagerSelfDefense implements ModInitializer {
 			}
 		});
 
-		LOGGER.info("Villager Self Defense (Tier 0) initialized");
+		LOGGER.info("Villager Self Defense (Tier 0 / Tier 0b) initialized");
 	}
 }

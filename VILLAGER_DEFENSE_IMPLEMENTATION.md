@@ -73,6 +73,18 @@ Balance, edge cases (beds, raids, golems), performance passes, documentation for
 
 ---
 
+### Planned follow-up — defense-mode movement speed
+
+*(Does not modify Phases A–B; schedule after Tier 1 group work.)*
+
+**Goal:** Match [VILLAGER_DEFENSE_CORE.md](./VILLAGER_DEFENSE_CORE.md): while **defense mode** is active, **adult villagers** move at a **fixed** speed **just below** vanilla **base player sprint**; **static** code constant only (no config key).
+
+**Likely includes:** server-side `generic.movement_speed` modifier (or equivalent) applied on defense activate and removed on `standDown` (consistent with existing unload cleanup); playtest sprint escape on flat ground.
+
+**Exit:** A sprinting player outruns defending villagers; no leftover modifier after stand-down.
+
+---
+
 ## Dependency order
 
 ```

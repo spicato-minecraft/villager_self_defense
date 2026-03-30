@@ -119,7 +119,7 @@ The following should be **user-tunable** in the exposed config (exact names TBD)
 | **Player activation (Tier 0b)** | Hit counts (normal vs already-in-defense), time window (seconds) |
 | **Defense mode** | Stand-down timeout (seconds); conditions for exit |
 | **Performance** | Max allies notified per event, minimum tick interval between group scans (throttle) |
-| **Features** | Toggles for gear pickup, player activation rules, creative ignore |
+| **Features** | Toggles for gear pickup, player activation (Tier 0b) window/thresholds (creative and Peaceful difficulty are not configurable; see design decisions) |
 | **Balance** | Optional defaults for suggested radius/throttle (see below) |
 
 ---
@@ -140,6 +140,14 @@ The following should be **user-tunable** in the exposed config (exact names TBD)
 - **“Any loaded villager” vs per-chunk:** precise definition for the 3-hits/10s rule in multiplayer.
 - **Flee AI for babies:** specific task or reuse vanilla panic—implementation detail.
 - **Dispersal algorithm:** confirm greedy nearest-threat vs tie-breaking (distance only, or slight load balancing when two villagers equidistant).
+
+---
+
+## Planned follow-up — defense-mode movement speed
+
+*(Not part of Phases A–B; implement after Tier 1 group response is in place.)*
+
+While **defense mode** is active, **adult villagers** should move at a **fixed** effective speed that is **slightly slower than vanilla base player sprint speed** (no Swiftness, no Soul Speed—using the game’s default player sprint as the reference). This is a **static constant** in code—not a config option—so players can **reliably outrun** defenders by sprinting. Apply when entering defense; remove on stand-down.
 
 ---
 
