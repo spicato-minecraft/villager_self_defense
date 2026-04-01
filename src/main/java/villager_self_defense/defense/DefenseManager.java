@@ -119,7 +119,8 @@ public final class DefenseManager {
 			closeMerchantUiForVillager(level, villager);
 			AllyDefenseNotifier.notifyAlliesInRadius(level, villager, player, time, config);
 		} finally {
-			AllyDefenseNotifier.refreshPackThreatNeighbors(level, villager, attacker, time, config);
+			DefenseDispersal.tryRebalanceFromDamage(level, villager, time, config);
+			AllyDefenseNotifier.refreshPackThreatNeighbors(level, villager, time, config);
 		}
 	}
 
@@ -166,7 +167,9 @@ public final class DefenseManager {
 		}
 		if (state.shouldStandDownQuiet(config, time)) {
 			standDown(level, villager);
+			return;
 		}
+		DefenseDispersal.tryPeriodicRebalance(level, villager, time, config);
 	}
 
 	public static void standDown(ServerLevel level, Villager villager) {
@@ -175,6 +178,7 @@ public final class DefenseManager {
 			return;
 		}
 		state.clear();
+		DefenseDispersal.clearCachesFor(villager.getUUID());
 		DefenseBrainHooks.clear(level, villager);
 	}
 

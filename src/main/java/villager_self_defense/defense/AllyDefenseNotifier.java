@@ -71,19 +71,18 @@ public final class AllyDefenseNotifier {
 	}
 
 	/**
-	 * CORE pack stand-down: refresh quiet timers for co-defenders sharing {@code attacker} near {@code victim}.
+	 * CORE pack stand-down: refresh quiet timers for all co-defenders in the ally sphere (multi-threat / Tier 1b).
 	 */
-	public static void refreshPackThreatNeighbors(ServerLevel level, Villager victim, LivingEntity attacker, long time, ModConfig config) {
+	public static void refreshPackThreatNeighbors(ServerLevel level, Villager victim, long time, ModConfig config) {
 		double radius = config.allyRadius;
 		double radiusSq = radius * radius;
-		UUID attackerId = attacker.getUUID();
 		AABB box = victim.getBoundingBox().inflate(radius);
 		for (Villager v : level.getEntitiesOfClass(Villager.class, box, x -> !x.isBaby() && x.isAlive())) {
 			if (v.distanceToSqr(victim) > radiusSq) {
 				continue;
 			}
 			VillagerDefenseState s = DefenseManager.getState(v);
-			if (!s.defenseActive || s.targetUuid == null || !s.targetUuid.equals(attackerId)) {
+			if (!s.defenseActive || s.targetUuid == null) {
 				continue;
 			}
 			s.refreshThreat(time);

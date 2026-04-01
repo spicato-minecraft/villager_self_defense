@@ -67,7 +67,19 @@ High-level breakdown for splitting work. Details stay in code and smaller task n
 
 ---
 
-### Phase E — Hardening (ongoing / after C)
+### Phase D — Villager equipment rendering (client)
+
+**Goal:** After Tier 2 gear works **server-side**, make **equipped armor** (and confirm **main-hand** visuals) **visible on clients**. Vanilla Java often **does not draw armor** on the villager model even when slots are filled; this phase adds the missing **render layer** (see [VILLAGER_DEFENSE_CORE.md](./VILLAGER_DEFENSE_CORE.md) — *Build phase — villager equipment rendering*).
+
+**Likely includes:** client initializer registration (or mixin) attaching a layer to `VillagerRenderer`; delegate to vanilla equipment/armor rendering; optional **config toggle**; multiplayer spot-check that other players see armor and held items.
+
+**Exit:** Equipped chestplate/helmet etc. **visible** to the local player and to other clients; no change to server combat or equip behavior.
+
+**Dependency:** **After Phase C** (C1–C3 as needed) so gear state is real before investing in visuals.
+
+---
+
+### Phase E — Hardening (ongoing / after C and D)
 
 Balance, edge cases (beds, raids, golems), performance passes, documentation for players.
 
@@ -88,11 +100,11 @@ Balance, edge cases (beds, raids, golems), performance passes, documentation for
 ## Dependency order
 
 ```
-A → A2 → B → B2 → C → E
-     (A2 = player activation; B/B2 = allies + dispersal; C = gear)
+A → A2 → B → B2 → C → D → E
+     (A2 = player activation; B/B2 = allies + dispersal; C = gear; D = client armor/held visuals)
 ```
 
-Suggested default: **A → A2 → B → B2 → C** so **activation** (mobs + players) is complete before **group** behavior, then **gear**. **B2** can be deferred only if you temporarily treat multi-threat as “shared first target” (document that shortcut).
+Suggested default: **A → A2 → B → B2 → C** so **activation** (mobs + players) is complete before **group** behavior, then **gear**. **B2** can be deferred only if you temporarily treat multi-threat as “shared first target” (document that shortcut). **D** runs **after C** so server equip and damage are settled before client rendering work. **E** continues after **C** (and **D** when you add it).
 
 ---
 
@@ -108,6 +120,7 @@ Use this as a lightweight backlog; keep individual PRs small.
 - [ ] **B2** Dispersal layer: multi-attacker assignment + performance guardrails (Tier 1b).
 - [ ] **C1** Item pickup + registration (Fabric API or mixin as needed).
 - [ ] **C2** Equip slots + attack using held item.
+- [ ] **D1** Client render layer for villager armor (and held-item visibility check); optional config toggle.
 - [ ] **E1** Playtesting + tuning notes.
 
 ---
@@ -119,6 +132,7 @@ Use this as a lightweight backlog; keep individual PRs small.
 - **Defense priority:** ring bell / open typical distractions → villager in defense should **not** abandon combat for those behaviors.
 - Server reload / chunk unload mid-fight.
 - Armor stand / item frame interactions (should not equip junk).
+- **Phase D:** Two clients near equipped defender → both see **armor and main-hand** item; toggle off (if present) restores vanilla villager appearance.
 
 ---
 

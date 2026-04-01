@@ -2,7 +2,10 @@ package villager_self_defense.defense;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import villager_self_defense.config.ModConfig;
@@ -38,5 +41,27 @@ public final class DefenseEligibility {
 			return true;
 		}
 		return level.getDifficulty() == Difficulty.PEACEFUL;
+	}
+
+	/**
+	 * Tier 1b dispersal: entities villagers may be assigned to fight (CORE friendly-fire + valid threats).
+	 */
+	public static boolean isValidThreatTarget(LivingEntity entity, ServerLevel level) {
+		if (!entity.isAlive()) {
+			return false;
+		}
+		if (entity instanceof Villager) {
+			return false;
+		}
+		if (entity instanceof IronGolem) {
+			return false;
+		}
+		if (entity instanceof Player player) {
+			return !playerIgnoredForRetaliation(player, level);
+		}
+		if (entity instanceof Mob mob) {
+			return mob.getType().getCategory() == MobCategory.MONSTER;
+		}
+		return false;
 	}
 }

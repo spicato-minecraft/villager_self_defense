@@ -4,19 +4,19 @@ overview: Add Tier 1b multi-attacker dispersal on top of existing Phase B group 
 todos:
   - id: config-dispersal
     content: Add ModConfig keys (dispersalEnabled, K, interval, maxDefendersPerAttacker) + migration defaults
-    status: pending
+    status: completed
   - id: threat-predicate
     content: Add DefenseEligibility (or sibling) isValidThreatTarget + LivingEntity sphere scan capped by K
-    status: pending
+    status: completed
   - id: dispersal-engine
     content: "Implement DefenseDispersal: throttle, sticky, greedy assign, soft cap"
-    status: pending
+    status: completed
   - id: wire-defense-manager
     content: Hook rebalance after notify (every-hit notify attempts; throttle dispersal separately) + staggered tick; fix refreshPackThreatNeighbors for any defender in radius
-    status: pending
+    status: completed
   - id: test-scenarios
     content: "Manual tests: 2+ threats, single threat, dispersal off, stand-down refresh"
-    status: pending
+    status: completed
 isProject: false
 ---
 

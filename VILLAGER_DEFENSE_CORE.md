@@ -44,6 +44,8 @@ Order is **activation first** (who can turn on Defense), then **scale out** (all
 | **1b** | **Dispersal:** multiple attackers → divide defenders by **proximity** (or nearest-threat assignment), subject to performance guardrails. |
 | **2** | Pickup + equip + use gear (can split armor vs weapon). |
 
+**Client rendering:** On Java, **armor on the villager model** may require a **separate build phase after** Tier 2 implementation (**Phase D** in the implementation plan)—see *Build phase — villager equipment rendering* below.
+
 Later documents may rename tiers; **0b** is intentionally early so **defense activation** is unified (mobs + players) before group behavior.
 
 ---
@@ -102,6 +104,12 @@ These rules keep cost predictable next to vanilla pathfinding and entity ticking
 
 - **Server-authoritative** logic; client only what vanilla needs for poses, held items, and UI.
 
+**Client equipment visuals (follow-up to Tier 2 / Phase C)**
+
+- On **Java Edition**, vanilla **does not render armor** on the villager model even when armor slots are filled (long-standing engine behavior). **Held items** (e.g. main-hand weapons) generally display; **armor visibility** requires a **separate client build phase** after the Tier 2 gear loop is working server-side.
+- That phase is **additive**: register a **render layer** on the villager entity renderer (e.g. `VillagerRenderer`) so equipped armor draws using vanilla equipment/armor paths (trims, modded armor where supported), without changing combat or equip logic on the server. Optional **config toggle** to disable the layer for pack makers who prefer stock visuals or need to avoid a rare mod conflict.
+- **Scope:** align with the core **visible combat benefit** goal for Tier 2; treat misaligned proportions (villager vs humanoid skeleton) as an acceptable tradeoff unless a later pass refines poses.
+
 **Brain priority (summary)**
 
 - **Defense activity = top priority** when triggered (see **Defense activity priority** under core principles). No other villager activity should preempt combat defense for adult villagers until stand-down.
@@ -148,6 +156,20 @@ The following should be **user-tunable** in the exposed config (exact names TBD)
 *(Not part of Phases A–B; implement after Tier 1 group response is in place.)*
 
 While **defense mode** is active, **adult villagers** should move at a **fixed** effective speed that is **slightly slower than vanilla base player sprint speed** (no Swiftness, no Soul Speed—using the game’s default player sprint as the reference). This is a **static constant** in code—not a config option—so players can **reliably outrun** defenders by sprinting. Apply when entering defense; remove on stand-down.
+
+---
+
+## Build phase — villager equipment rendering (after Phase C)
+
+*(Follows **Phase C** / Tier 2 gear loop; not a new gameplay tier.)*
+
+**Why:** Tier 2 equips armor server-side for mitigation, but **Java** clients may show **no armor** on the villager model. This phase makes **equipped armor visible** (and can double-check **held-weapon** presentation) so multiplayer and the “visible benefit” criterion match player expectations.
+
+**What (client-only):** Add a **feature render layer** (or equivalent 1.21 API) on the villager renderer, delegating to vanilla **equipment / armor rendering** where possible. **Server logic stays unchanged**—authoritative slots, attributes, and Phase C pickup rules remain as implemented.
+
+**Config:** Optional **toggle** (e.g. “render villager armor”) defaulting **on** for clarity; off for minimalism or compatibility.
+
+**Ordering:** Implement **after** Phase C is stable (equip + damage + drops), so visuals are validated against real gear state.
 
 ---
 

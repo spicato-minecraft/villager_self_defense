@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DamageHandler;
+import villager_self_defense.defense.DefenseDispersal;
 import villager_self_defense.defense.DefenseManager;
 
 public class VillagerSelfDefense implements ModInitializer {
@@ -21,7 +22,9 @@ public class VillagerSelfDefense implements ModInitializer {
 
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
 			if (entity instanceof Villager v) {
-				DefenseManager.removeState(v.getUUID());
+				var id = v.getUUID();
+				DefenseManager.removeState(id);
+				DefenseDispersal.clearCachesFor(id);
 			}
 		});
 

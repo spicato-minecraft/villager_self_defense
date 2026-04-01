@@ -47,6 +47,15 @@ public final class ModConfig {
 	/** Tier 1: min ticks between repeat ally broadcasts for the same victim–attacker pair. */
 	public int allyNotifyMinTicks = 5;
 
+	/** Tier 1b: when true, multiple threats in the ally sphere split defenders by proximity. */
+	public boolean dispersalEnabled = true;
+	/** Tier 1b: max hostile entities considered as threat candidates (K). */
+	public int dispersalMaxAttackersK = 8;
+	/** Tier 1b: min ticks between dispersal rebalance passes per anchor (unless forced by threat set change). */
+	public int dispersalRebalanceMinTicks = 15;
+	/** Tier 1b: soft max defenders assigned to one threat (0 = unlimited). */
+	public int dispersalMaxDefendersPerAttacker = 0;
+
 	public static ModConfig load() {
 		Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
 		ModConfig cfg = new ModConfig();
@@ -106,6 +115,18 @@ public final class ModConfig {
 		}
 		if (!root.has("allyNotifyMinTicks")) {
 			cfg.allyNotifyMinTicks = 5;
+		}
+		if (!root.has("dispersalEnabled")) {
+			cfg.dispersalEnabled = true;
+		}
+		if (!root.has("dispersalMaxAttackersK")) {
+			cfg.dispersalMaxAttackersK = 8;
+		}
+		if (!root.has("dispersalRebalanceMinTicks")) {
+			cfg.dispersalRebalanceMinTicks = 15;
+		}
+		if (!root.has("dispersalMaxDefendersPerAttacker")) {
+			cfg.dispersalMaxDefendersPerAttacker = 0;
 		}
 	}
 
