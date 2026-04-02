@@ -13,6 +13,15 @@ public final class VillagerDefenseEntityData {
 
 	private VillagerDefenseEntityData() {}
 
+	/**
+	 * Must run before any {@link Villager} is constructed. {@link SynchedEntityData.Builder} sizes its array from
+	 * {@link SynchedEntityData#ID_REGISTRY} at construction time; if this class has not loaded yet, {@code defineId}
+	 * has not run and the array is one slot too short, causing {@code ArrayIndexOutOfBoundsException} on world load.
+	 */
+	public static void ensureRegistered() {
+		DEFENSE_ACTIVE.id();
+	}
+
 	public static boolean isDefenseActive(Villager villager) {
 		return villager.getEntityData().get(DEFENSE_ACTIVE);
 	}

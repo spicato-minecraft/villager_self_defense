@@ -15,6 +15,7 @@ import villager_self_defense.client.ClientGearProfessionCache;
 import villager_self_defense.client.render.VillagerArmorLayer;
 import villager_self_defense.client.render.VillagerDefenseHandLayer;
 import villager_self_defense.config.ModConfig;
+import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.network.ClientGearProfessionCacheAccess;
 import villager_self_defense.network.GearProfessionLockS2CPayload;
 
@@ -23,6 +24,7 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig.set(ModConfig.load());
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {

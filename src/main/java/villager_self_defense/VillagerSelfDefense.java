@@ -11,6 +11,7 @@ import villager_self_defense.network.GearProfessionLockS2CPayload;
 import villager_self_defense.defense.DamageHandler;
 import villager_self_defense.defense.DefenseDispersal;
 import villager_self_defense.defense.DefenseManager;
+import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.gear.GearDamageSync;
 
 public class VillagerSelfDefense implements ModInitializer {
@@ -19,6 +20,7 @@ public class VillagerSelfDefense implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig config = ModConfig.load();
 		ModConfig.set(config);
 		PayloadTypeRegistry.playS2C().register(GearProfessionLockS2CPayload.TYPE, GearProfessionLockS2CPayload.CODEC);
