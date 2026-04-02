@@ -22,6 +22,7 @@ public final class ModConfig {
 	private static final Logger LOGGER = LogManager.getLogger(VillagerSelfDefense.MOD_ID + ".config");
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final String FILE_NAME = VillagerSelfDefense.MOD_ID + ".json";
+	private static volatile ModConfig instance;
 
 	public boolean mobDefenseEnabled = true;
 	/**
@@ -45,7 +46,7 @@ public final class ModConfig {
 	/** Tier 1: max additional villagers pulled in per ally notify pass. */
 	public int maxAlliesNotifiedPerEvent = 32;
 	/** Tier 1: min ticks between repeat ally broadcasts for the same victim–attacker pair. */
-	public int allyNotifyMinTicks = 5;
+	public int allyNotifyMinTicks = 20;
 
 	/** Tier 1b: when true, multiple threats in the ally sphere split defenders by proximity. */
 	public boolean dispersalEnabled = true;
@@ -56,6 +57,25 @@ public final class ModConfig {
 	/** Tier 1b: soft max defenders assigned to one threat (0 = unlimited). */
 	public int dispersalMaxDefendersPerAttacker = 0;
 
+	/** Tier 2: gear assignment via merchant trade UI drawer (server validates). */
+	public boolean gearMenuEnabled = true;
+	/** When true, gear slots and icon only appear for villagers who have completed at least one trade (locked profession). */
+	public boolean gearRequiresLockedProfession = true;
+
+	/** Shared config for server + client (gear slot validation); set from {@link villager_self_defense.VillagerSelfDefense} and client init. */
+	public static ModConfig get() {
+		ModConfig i = instance;
+		if (i == null) {
+			i = load();
+			instance = i;
+		}
+		return i;
+	}
+
+	public static void set(ModConfig cfg) {
+		instance = cfg;
+	}
+
 	public static ModConfig load() {
 		Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
 		ModConfig cfg = new ModConfig();
@@ -65,7 +85,10 @@ public final class ModConfig {
 				ModConfig fromFile = GSON.fromJson(root, ModConfig.class);
 				if (fromFile != null) {
 					cfg = fromFile;
-					applyDefaultsForMissingKeys(root, cfg);
+					boolean addedKeys = applyDefaultsForMissingKeys(root, cfg);
+					if (addedKeys) {
+						cfg.save();
+					}
 				}
 			} catch (IOException e) {
 				LOGGER.error("Failed to read config {}, using defaults", path, e);
@@ -81,7 +104,11 @@ public final class ModConfig {
 		return cfg;
 	}
 
-	private static void applyDefaultsForMissingKeys(JsonObject root, ModConfig cfg) {
+	/**
+	 * @return true if any new keys were filled so the file should be re-saved (migration).
+	 */
+	private static boolean applyDefaultsForMissingKeys(JsonObject root, ModConfig cfg) {
+		boolean addedKeys = false;
 		if (!root.has("playerActivationEnabled")) {
 			if (root.has("retaliateAgainstPlayers")) {
 				cfg.playerActivationEnabled = root.get("retaliateAgainstPlayers").getAsBoolean();
@@ -128,6 +155,13 @@ public final class ModConfig {
 		if (!root.has("dispersalMaxDefendersPerAttacker")) {
 			cfg.dispersalMaxDefendersPerAttacker = 0;
 		}
+		if (!root.has("gearMenuEnabled")) {
+			cfg.gearMenuEnabled = true;
+		}
+		if (!root.has("gearRequiresLockedProfession")) {
+			cfg.gearRequiresLockedProfession = true;
+		}
+		return addedKeys;
 	}
 
 	public void save() {

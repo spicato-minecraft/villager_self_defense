@@ -4,22 +4,22 @@ overview: "Implement Tier 2 (Phase C) from [VILLAGER_DEFENSE_IMPLEMENTATION.md](
 todos:
   - id: c-config
     content: Add Tier 2 config keys (gear feature toggle, optional UI offsets for gear icon) + migration defaults in ModConfig
-    status: in_progress
+    status: completed
   - id: c1-menu-equip
     content: Merchant/trade screen — gear icon (top-right) toggles drawer; ScreenHandler with 5 armor + weapon slots; server validates tags and applies equipment
-    status: pending
+    status: completed
   - id: c1-client-ui
     content: Client-only drawer layout, icon button, slot rendering; optional REI/EMI exclusion registration if overlays clash
-    status: pending
+    status: completed
   - id: c2-damage
     content: Wire melee damage to held item rules (verify doHurtTarget path; mixin or attribute sync as needed)
-    status: pending
+    status: completed
   - id: c3-polish
     content: Death drops, durability/hurtAndBreak, edge cases (empty hand, unload cleanup for modifiers)
-    status: pending
+    status: completed
   - id: c-test
     content: Manual test pass per implementation doc exit criteria + multiplayer sync + modpack UI spot-check
-    status: pending
+    status: completed
 isProject: false
 ---
 

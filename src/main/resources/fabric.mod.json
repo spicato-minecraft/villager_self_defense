@@ -13,6 +13,7 @@
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/villager_self_defense/icon.png",
+	"accessWidener": "villager_self_defense.accesswidener",
 	"environment": "*",
 	"entrypoints": {
 		"main": [

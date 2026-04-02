@@ -3,7 +3,9 @@
 	"package": "villager_self_defense.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"ExampleClientMixin"
+		"AbstractContainerScreenAccessor",
+		"AbstractContainerScreenMixin",
+		"MerchantScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
