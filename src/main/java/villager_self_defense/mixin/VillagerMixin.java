@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -25,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import villager_self_defense.brain.ModDefenseActivities;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
+import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.gear.VillagerGearStashHolder;
 import villager_self_defense.gear.VillagerGearSync;
 
@@ -84,6 +86,12 @@ public abstract class VillagerMixin implements VillagerGearStashHolder {
 		}
 		VillagerGearSync.reconcileAfterLoad((Villager) (Object) this);
 	}
+
+	@Inject(method = "defineSynchedData", at = @At("TAIL"))
+	private void villager_self_defense$defineDefenseData(SynchedEntityData.Builder builder, CallbackInfo ci) {
+		builder.define(VillagerDefenseEntityData.DEFENSE_ACTIVE, false);
+	}
+
 	/**
 	 * Vanilla villagers omit combat memories; {@link net.minecraft.world.entity.ai.Brain#setMemory} ignores
 	 * unregistered modules, so {@link MemoryModuleType#ATTACK_TARGET} was never stored and {@link net.minecraft.world.entity.ai.behavior.MeleeAttack} never ran.

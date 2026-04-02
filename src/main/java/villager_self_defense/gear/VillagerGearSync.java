@@ -4,6 +4,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
+import villager_self_defense.defense.VillagerDefenseEntityData;
 
 /**
  * Keeps villager equipment aligned with the player gear stash (see {@link #syncStashToEquipment}) and after world load.
@@ -70,11 +71,22 @@ public final class VillagerGearSync {
 	}
 
 	public static void applyStashToEquipment(Villager villager) {
+		boolean defense = VillagerDefenseEntityData.isDefenseActive(villager);
 		var stash = VillagerGearStash.get(villager);
 		for (int i = 0; i < SLOTS.length; i++) {
+			EquipmentSlot es = SLOTS[i];
+			if (es == EquipmentSlot.MAINHAND && !defense) {
+				villager.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				continue;
+			}
 			ItemStack st = stash.get(i);
-			villager.setItemSlot(SLOTS[i], st.isEmpty() ? ItemStack.EMPTY : st.copy());
+			villager.setItemSlot(es, st.isEmpty() ? ItemStack.EMPTY : st.copy());
 		}
+	}
+
+	/** Clears only the main hand; stash slot 4 is unchanged (weapon stays in gear UI / save). */
+	public static void clearMainHandFromEntity(Villager villager) {
+		villager.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
 	}
 
 	/**
@@ -97,6 +109,12 @@ public final class VillagerGearSync {
 		for (int i = 0; i < SLOTS.length; i++) {
 			ItemStack st = stash.get(i);
 			EquipmentSlot es = SLOTS[i];
+			if (es == EquipmentSlot.MAINHAND && !VillagerDefenseEntityData.isDefenseActive(villager)) {
+				if (!villager.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
+					villager.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+				}
+				continue;
+			}
 			ItemStack eq = villager.getItemBySlot(es);
 			if (!st.isEmpty() && st.isBroken()) {
 				stash.set(i, ItemStack.EMPTY);

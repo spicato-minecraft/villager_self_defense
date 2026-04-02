@@ -62,6 +62,11 @@ public final class ModConfig {
 	/** When true, gear slots and icon only appear for villagers who have completed at least one trade (locked profession). */
 	public boolean gearRequiresLockedProfession = true;
 
+	/**
+	 * Client: draw equipped armor on villagers (Phase D). When false, vanilla appearance (no armor layer).
+	 */
+	public boolean renderVillagerArmor = true;
+
 	/** Shared config for server + client (gear slot validation); set from {@link villager_self_defense.VillagerSelfDefense} and client init. */
 	public static ModConfig get() {
 		ModConfig i = instance;
@@ -160,6 +165,9 @@ public final class ModConfig {
 		}
 		if (!root.has("gearRequiresLockedProfession")) {
 			cfg.gearRequiresLockedProfession = true;
+		}
+		if (!root.has("renderVillagerArmor")) {
+			cfg.renderVillagerArmor = true;
 		}
 		return addedKeys;
 	}

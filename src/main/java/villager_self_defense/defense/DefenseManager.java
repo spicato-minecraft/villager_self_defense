@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MerchantMenu;
 import villager_self_defense.brain.DefenseBrainHooks;
 import villager_self_defense.config.ModConfig;
+import villager_self_defense.gear.VillagerGearSync;
 import villager_self_defense.mixin.MerchantMenuAccessor;
 
 import java.util.Map;
@@ -135,6 +136,8 @@ public final class DefenseManager {
 	static void activateVillagerAgainstAttacker(ServerLevel level, Villager villager, LivingEntity attacker, long time) {
 		VillagerDefenseState state = getState(villager);
 		state.enterDefense(attacker, time);
+		VillagerDefenseEntityData.setDefenseActive(villager, true);
+		VillagerGearSync.syncStashToEquipment(villager);
 		DefenseBrainHooks.activate(villager, attacker);
 		closeMerchantUiForVillager(level, villager);
 	}
@@ -177,6 +180,8 @@ public final class DefenseManager {
 		if (!state.defenseActive) {
 			return;
 		}
+		VillagerDefenseEntityData.setDefenseActive(villager, false);
+		VillagerGearSync.clearMainHandFromEntity(villager);
 		state.clear();
 		DefenseDispersal.clearCachesFor(villager.getUUID());
 		DefenseBrainHooks.clear(level, villager);
