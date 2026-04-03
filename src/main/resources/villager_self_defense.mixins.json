@@ -9,7 +9,8 @@
 		"AbstractContainerMenuMixin",
 		"MerchantMenuMixin",
 		"MobMixin",
-		"LivingEntityMixin"
+		"LivingEntityMixin",
+		"NearestVisibleLivingEntitiesMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

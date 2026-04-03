@@ -30,6 +30,15 @@ public abstract class AbstractContainerScreenMixin {
 	@Shadow
 	protected int imageWidth;
 
+	/** {@link MerchantScreen} does not declare {@code removed()} in bytecode (inherited only), so the inject lives here. */
+	@Inject(method = "removed", at = @At("HEAD"))
+	private void villager_self_defense$clearGearDrawerState(CallbackInfo ci) {
+		if (!((Object) this instanceof MerchantScreen self)) {
+			return;
+		}
+		MerchantGearDrawerState.clear(self);
+	}
+
 	/**
 	 * Defer adding the gear button until {@link AbstractContainerScreen#containerTick()} so trade/XP sync can catch up
 	 * after {@link net.minecraft.client.gui.screens.Screen#init()}; retries each tick until {@link
@@ -54,7 +63,13 @@ public abstract class AbstractContainerScreenMixin {
 		AbstractContainerScreenAccessor pos = (AbstractContainerScreenAccessor) (Object) this;
 		int bx = pos.villager_self_defense$getLeftPos() + VillagerGearGui.ICON_X + VillagerGearGui.ICON_OFFSET_X;
 		int by = pos.villager_self_defense$getTopPos() + VillagerGearGui.ICON_Y + VillagerGearGui.ICON_OFFSET_Y;
-		MerchantGearDrawerButton gearBtn = MerchantGearDrawerButton.create(bx, by, 18, 18, self);
+		MerchantGearDrawerButton gearBtn = MerchantGearDrawerButton.create(
+			bx,
+			by,
+			VillagerGearGui.GEAR_ICON_BUTTON_WIDTH,
+			VillagerGearGui.GEAR_ICON_BUTTON_HEIGHT,
+			self
+		);
 		self.addRenderableWidget(gearBtn);
 		villager_self_defense$merchantGearButton = gearBtn;
 	}

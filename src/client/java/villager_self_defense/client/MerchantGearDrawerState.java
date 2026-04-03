@@ -2,11 +2,13 @@ package villager_self_defense.client;
 
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 
-import java.util.WeakHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Client-only drawer visibility for villager gear slots on the trade screen. */
 public final class MerchantGearDrawerState {
-	private static final WeakHashMap<MerchantScreen, Boolean> OPEN = new WeakHashMap<>();
+	/** Strong keys; cleared when the merchant screen closes (see {@link villager_self_defense.mixin.client.MerchantScreenMixin}). */
+	private static final Map<MerchantScreen, Boolean> OPEN = new HashMap<>();
 
 	private MerchantGearDrawerState() {}
 
@@ -24,5 +26,9 @@ public final class MerchantGearDrawerState {
 
 	public static void toggle(MerchantScreen screen) {
 		setOpen(screen, !isOpen(screen));
+	}
+
+	public static void clear(MerchantScreen screen) {
+		OPEN.remove(screen);
 	}
 }

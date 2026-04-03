@@ -13,8 +13,11 @@ public final class VillagerGearGui {
 	public static final int ICON_X = 252;
 	public static final int ICON_Y = 8;
 	/** Pixel nudge applied to the gear icon position (baked in; not configurable). */
-	public static final int ICON_OFFSET_X = 0;
+	public static final int ICON_OFFSET_X = -4;
 	public static final int ICON_OFFSET_Y = -2;
+	/** Gear drawer toggle: same dimensions as the recipe book button. */
+	public static final int GEAR_ICON_BUTTON_WIDTH = 20;
+	public static final int GEAR_ICON_BUTTON_HEIGHT = 18;
 
 	private VillagerGearGui() {}
 }

@@ -24,8 +24,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import villager_self_defense.brain.ModDefenseActivities;
-import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
+import villager_self_defense.defense.DefenseMeleeContext;
 import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.gear.VillagerGearStashHolder;
 import villager_self_defense.gear.VillagerGearSync;
@@ -134,12 +134,15 @@ public abstract class VillagerMixin implements VillagerGearStashHolder {
 
 	@Inject(method = "customServerAiStep", at = @At("HEAD"))
 	private void villager_self_defense$defenseBeforeBrain(ServerLevel level, CallbackInfo ci) {
-		DefenseManager.preBrainTick(level, (Villager) (Object) this);
+		Villager self = (Villager) (Object) this;
+		DefenseMeleeContext.set(self);
+		DefenseManager.preBrainTick(level, self);
 	}
 
 	@Inject(method = "customServerAiStep", at = @At("TAIL"))
 	private void villager_self_defense$tickDefense(ServerLevel level, CallbackInfo ci) {
 		DefenseManager.tick(level, (Villager) (Object) this);
+		DefenseMeleeContext.clear();
 	}
 
 	@Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)

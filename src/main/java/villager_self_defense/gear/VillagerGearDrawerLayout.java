@@ -67,7 +67,7 @@ public final class VillagerGearDrawerLayout {
 	public static int minImageWidthForMerchantGui(int gearDrawerOffsetX, int gearIconOffsetX) {
 		int slotRight = ORIGIN_X + gearDrawerOffsetX + 16;
 		int panelRight = ORIGIN_X - PANEL_PADDING + gearDrawerOffsetX + PANEL_WIDTH;
-		int iconRight = VillagerGearGui.ICON_X + gearIconOffsetX + 18;
+		int iconRight = VillagerGearGui.ICON_X + gearIconOffsetX + VillagerGearGui.GEAR_ICON_BUTTON_WIDTH;
 		int maxRight = Math.max(slotRight, Math.max(panelRight, iconRight));
 		return Math.max(276, maxRight + 4);
 	}

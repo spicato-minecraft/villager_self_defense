@@ -138,6 +138,7 @@ public final class DefenseManager {
 		state.enterDefense(attacker, time);
 		VillagerDefenseEntityData.setDefenseActive(villager, true);
 		VillagerGearSync.syncStashToEquipment(villager);
+		DefenseMovementSpeed.apply(villager);
 		DefenseBrainHooks.activate(villager, attacker);
 		closeMerchantUiForVillager(level, villager);
 	}
@@ -180,6 +181,7 @@ public final class DefenseManager {
 		if (!state.defenseActive) {
 			return;
 		}
+		DefenseMovementSpeed.remove(villager);
 		VillagerDefenseEntityData.setDefenseActive(villager, false);
 		VillagerGearSync.clearMainHandFromEntity(villager);
 		state.clear();

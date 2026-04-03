@@ -67,7 +67,11 @@ public final class AllyDefenseNotifier {
 			notified++;
 		}
 
-		LAST_NOTIFY_TICK_BY_PAIR.put(pairKey, time);
+		// Only throttle after we actually recruited or refreshed at least one ally. Otherwise a no-op pass
+		// (no candidates in range, or all skipped) would still block retries within allyNotifyMinTicks.
+		if (notified > 0) {
+			LAST_NOTIFY_TICK_BY_PAIR.put(pairKey, time);
+		}
 	}
 
 	/**

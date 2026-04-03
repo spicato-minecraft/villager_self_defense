@@ -37,7 +37,7 @@ public final class ModConfig {
 	/** Hits in window while already defending vs this player before Tier 0b escalation hook. Default 6. */
 	public int playerHitsWhileInDefense = 6;
 	/** Quiet period (no relevant damage) before stand-down, in seconds. Default matches VILLAGER_DEFENSE_CORE. */
-	public int standDownQuietSeconds = 30;
+	public int standDownQuietSeconds = 10;
 
 	/** Tier 1: recruit nearby adult villagers to the same target. */
 	public boolean groupDefenseEnabled = true;
