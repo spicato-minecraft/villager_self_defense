@@ -4,7 +4,13 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"VillagerMixin",
-		"MerchantMenuAccessor"
+		"MerchantMenuAccessor",
+		"AbstractContainerMenuInvoker",
+		"AbstractContainerMenuMixin",
+		"MerchantMenuMixin",
+		"MobMixin",
+		"LivingEntityMixin",
+		"NearestVisibleLivingEntitiesMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

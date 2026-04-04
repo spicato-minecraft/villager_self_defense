@@ -15,7 +15,7 @@ This document matches the Phase A exit criteria: mob-triggered defense for adult
 | **Run dedicated server** | `./gradlew runServer` — optional for multiplayer checks. |
 | **Logs** | Client: `run/logs/latest.log` (or console). Dedicated server: server `logs/latest.log`. |
 
-On first launch, the mod creates **`config/villager_self_defense.json`** with defaults (`standDownQuietSeconds`: 30, `mobDefenseEnabled`: true). Edit to tune stand-down or disable mob defense for debugging.
+On first launch, the mod creates **`config/villager_self_defense.json`** with defaults (`standDownQuietSeconds`: 30, `mobDefenseEnabled`: true, Tier 0b keys such as `playerActivationEnabled`, `playerHitWindowSeconds`, `playerHitsToActivate`). Edit to tune stand-down, disable mob defense, or adjust player hit windows.
 
 ---
 
@@ -34,7 +34,7 @@ On first launch, the mod creates **`config/villager_self_defense.json`** with de
 | # | Case | Steps | Expected |
 |---|------|-------|----------|
 | 1 | **Mob hit → retaliation** | Spawn adult villager + zombie; let zombie hit villager | Villager paths toward zombie and attacks (melee); zombie takes damage over time. |
-| 2 | **Player hit does not trigger Tier 0** | Punch adult villager in Survival | Villager does **not** enter mod defense (no mod fight behavior vs player in Phase A). |
+| 2 | **Player hit — Phase A only** | Punch adult villager in Survival | In **Phase A** alone: no mod defense vs player. With **Phase A2** (Tier 0b), see [phaseA2Test.md](phaseA2Test.md): single hit does not trigger; repeated hits in the window do. |
 | 3 | **Baby does not defend** | Repeat with **baby** villager + zombie | Baby does not use mod defense melee; may use vanilla panic. |
 | 4 | **Stand-down on kill** | Let villager kill zombie | Villager stops attacking; after a short time behavior returns toward normal schedule. |
 | 5 | **Stand-down on timeout** | Trigger defense, then remove/kill attacker or stop damage; wait **> `standDownQuietSeconds`** (default 30s) without new hits | Defense ends; villager no longer stuck in fight pose vs old target. |
@@ -47,7 +47,7 @@ On first launch, the mod creates **`config/villager_self_defense.json`** with de
 
 ## Regression / future
 
-- **Tier 0b** (player hit windows) and **Tier 1** (allies) are **out of scope** for this checklist unless you extend the doc.
+- **Tier 0b** (player hit windows): use [phaseA2Test.md](phaseA2Test.md). **Tier 1** (allies) remains out of scope for this checklist unless you extend the doc.
 - **Automated GameTests** are optional and not required for Phase A sign-off.
 
 ---
