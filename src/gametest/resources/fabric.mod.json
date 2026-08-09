@@ -6,8 +6,18 @@
 	"environment": "*",
 	"entrypoints": {
 		"fabric-gametest": [
+			"villager_self_defense.gametest.AllyRecruitmentGameTest",
+			"villager_self_defense.gametest.BabyVillagerIgnoresDefenseGameTest",
+			"villager_self_defense.gametest.BrokenGearRemovedOnSyncGameTest",
+			"villager_self_defense.gametest.GearEquipDuringDefenseGameTest",
+			"villager_self_defense.gametest.GearStashPersistenceGameTest",
 			"villager_self_defense.gametest.HelperSmokeGameTest",
-			"villager_self_defense.gametest.InfraSmokeGameTest"
+			"villager_self_defense.gametest.InfraSmokeGameTest",
+			"villager_self_defense.gametest.PlayerThreeHitsActivatesDefenseGameTest",
+			"villager_self_defense.gametest.StandDownQuietPeriodGameTest",
+			"villager_self_defense.gametest.TargetDeathStandDownGameTest",
+			"villager_self_defense.gametest.TradingBlockedOnDefenseGameTest",
+			"villager_self_defense.gametest.ZombieHitActivatesDefenseGameTest"
 		]
 	},
 	"depends": {
