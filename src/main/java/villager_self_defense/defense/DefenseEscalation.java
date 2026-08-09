@@ -1,7 +1,7 @@
 package villager_self_defense.defense;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 
 /**

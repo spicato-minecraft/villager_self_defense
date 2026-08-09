@@ -1,8 +1,8 @@
 package villager_self_defense.gear;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.entity.npc.WanderingTrader;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.item.trading.Merchant;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.network.ClientGearProfessionCacheAccess;

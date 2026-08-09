@@ -3,7 +3,7 @@ package villager_self_defense.gear;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import villager_self_defense.config.ModConfig;

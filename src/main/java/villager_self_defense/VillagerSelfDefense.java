@@ -3,7 +3,7 @@ package villager_self_defense;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import villager_self_defense.config.ModConfig;

@@ -3,7 +3,7 @@ package villager_self_defense.defense;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 
 /**
  * Synced to clients for defense visuals and {@link villager_self_defense.gear.VillagerGearSync} main-hand gating.

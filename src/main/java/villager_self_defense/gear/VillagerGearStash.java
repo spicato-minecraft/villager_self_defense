@@ -1,7 +1,7 @@
 package villager_self_defense.gear;
 
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
 
 public final class VillagerGearStash {

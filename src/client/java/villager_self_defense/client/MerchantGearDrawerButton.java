@@ -6,7 +6,7 @@ import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import villager_self_defense.VillagerSelfDefense;
 
 /**
@@ -16,19 +16,19 @@ import villager_self_defense.VillagerSelfDefense;
 public final class MerchantGearDrawerButton extends ImageButton {
 	private static final int ICON_SIZE = 16;
 
-	private static final ResourceLocation GEAR_DRAWER_TOGGLE_SPRITE = ResourceLocation.fromNamespaceAndPath(
+	private static final Identifier GEAR_DRAWER_TOGGLE_SPRITE = Identifier.fromNamespaceAndPath(
 		VillagerSelfDefense.MOD_ID,
 		"container/slot/gear_drawer_toggle"
 	);
 
 	/** Semi-transparent blue tint matching the gear icon silhouette (not the recipe-book button mask). */
-	private static final ResourceLocation HOVER_OVERLAY_SPRITE = ResourceLocation.fromNamespaceAndPath(
+	private static final Identifier HOVER_OVERLAY_SPRITE = Identifier.fromNamespaceAndPath(
 		VillagerSelfDefense.MOD_ID,
 		"container/slot/gear_drawer_hover_overlay"
 	);
 
 	/** 1px outer ring from the recipe button alpha mask. */
-	private static final ResourceLocation FOCUS_OUTLINE_SPRITE = ResourceLocation.fromNamespaceAndPath(
+	private static final Identifier FOCUS_OUTLINE_SPRITE = Identifier.fromNamespaceAndPath(
 		VillagerSelfDefense.MOD_ID,
 		"container/gear_drawer_button_focus_outline"
 	);
@@ -66,10 +66,10 @@ public final class MerchantGearDrawerButton extends ImageButton {
 	}
 
 	@Override
-	public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		int x0 = getX();
 		int y0 = getY();
-		ResourceLocation base = this.sprites.get(this.isActive(), false);
+		Identifier base = this.sprites.get(this.isActive(), false);
 		guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, base, x0, y0, width, height);
 		int ix = x0 + (width - ICON_SIZE) / 2;
 		int iy = y0 + (height - ICON_SIZE) / 2;

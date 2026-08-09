@@ -3,7 +3,7 @@ package villager_self_defense.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.VillagerModel;
+import net.minecraft.client.model.npc.VillagerModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
@@ -35,8 +35,8 @@ public class VillagerDefenseHandLayer extends RenderLayer<VillagerRenderState, V
 		}
 		HumanoidRenderState humanoid = access.villager_self_defense$getHumanoidArmorState();
 		this.handModel.setupAnim(humanoid);
-		this.submitArmWithItem(humanoid, humanoid.rightHandItem, HumanoidArm.RIGHT, poseStack, submitNodeCollector, light);
-		this.submitArmWithItem(humanoid, humanoid.leftHandItem, HumanoidArm.LEFT, poseStack, submitNodeCollector, light);
+		this.submitArmWithItem(humanoid, humanoid.rightHandItemState, HumanoidArm.RIGHT, poseStack, submitNodeCollector, light);
+		this.submitArmWithItem(humanoid, humanoid.leftHandItemState, HumanoidArm.LEFT, poseStack, submitNodeCollector, light);
 	}
 
 	private void submitArmWithItem(
