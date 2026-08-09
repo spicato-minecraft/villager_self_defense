@@ -1,6 +1,6 @@
 package villager_self_defense.gear;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,7 @@ import villager_self_defense.config.ModConfig;
  */
 public final class VillagerGearSlot extends Slot {
 	/** Same sprite as smithing template sword hint; {@link net.minecraft.world.item.SmithingTemplateItem} keeps its copy private. */
-	private static final ResourceLocation EMPTY_MAINHAND_ICON = ResourceLocation.withDefaultNamespace("container/slot/sword");
+	private static final Identifier EMPTY_MAINHAND_ICON = Identifier.withDefaultNamespace("container/slot/sword");
 
 	private final EquipmentSlot equipmentSlot;
 	private final Merchant merchant;
@@ -47,7 +47,7 @@ public final class VillagerGearSlot extends Slot {
 	}
 
 	@Override
-	public @Nullable ResourceLocation getNoItemIcon() {
+	public @Nullable Identifier getNoItemIcon() {
 		return switch (this.equipmentSlot) {
 			case HEAD -> InventoryMenu.EMPTY_ARMOR_SLOT_HELMET;
 			case CHEST -> InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE;

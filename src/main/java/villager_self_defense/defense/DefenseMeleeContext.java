@@ -1,6 +1,6 @@
 package villager_self_defense.defense;
 
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 
 /**
  * Server tick context for the villager whose {@link net.minecraft.world.entity.Mob#customServerAiStep} is running.

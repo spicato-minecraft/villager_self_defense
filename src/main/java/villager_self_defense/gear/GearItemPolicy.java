@@ -2,7 +2,7 @@ package villager_self_defense.gear;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -16,7 +16,7 @@ import net.minecraft.world.item.equipment.Equippable;
  */
 public final class GearItemPolicy {
 	public static final TagKey<net.minecraft.world.item.Item> GEAR_BLACKLIST =
-		TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.fromNamespaceAndPath("villager_self_defense", "gear_blacklist"));
+		TagKey.create(BuiltInRegistries.ITEM.key(), Identifier.fromNamespaceAndPath("villager_self_defense", "gear_blacklist"));
 
 	private GearItemPolicy() {}
 

@@ -2,7 +2,7 @@ package villager_self_defense.gear;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
 import villager_self_defense.defense.VillagerDefenseEntityData;
 

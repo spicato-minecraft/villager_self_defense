@@ -1,10 +1,10 @@
 package villager_self_defense.defense;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import villager_self_defense.VillagerSelfDefense;
 
 /**
@@ -21,7 +21,7 @@ public final class DefenseMovementSpeed {
 	/** Slightly slower than sprint so a sprinting player can outrun defenders on flat ground. */
 	private static final double TARGET_DEFENSE_MOVEMENT_SPEED = PLAYER_SPRINT_MOVEMENT_SPEED - 0.01;
 
-	public static final ResourceLocation MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(
+	public static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath(
 		VillagerSelfDefense.MOD_ID,
 		"defense_movement_speed"
 	);

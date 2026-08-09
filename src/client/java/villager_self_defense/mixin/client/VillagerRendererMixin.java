@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.entity.state.VillagerRenderState;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -61,10 +61,10 @@ public abstract class VillagerRendererMixin {
 	}
 
 	private static void villager_self_defense$fillArmPosesForHeldItems(HumanoidRenderState humanoid) {
-		if (!humanoid.rightHandItem.isEmpty()) {
+		if (!humanoid.rightHandItemStack.isEmpty()) {
 			humanoid.rightArmPose = HumanoidModel.ArmPose.ITEM;
 		}
-		if (!humanoid.leftHandItem.isEmpty()) {
+		if (!humanoid.leftHandItemStack.isEmpty()) {
 			humanoid.leftArmPose = HumanoidModel.ArmPose.ITEM;
 		}
 	}

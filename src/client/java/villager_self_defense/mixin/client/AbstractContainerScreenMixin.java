@@ -105,7 +105,7 @@ public abstract class AbstractContainerScreenMixin {
 		method = "renderContents",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlots(Lnet/minecraft/client/gui/GuiGraphics;)V",
+			target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlots(Lnet/minecraft/client/gui/GuiGraphics;II)V",
 			shift = At.Shift.BEFORE
 		)
 	)
@@ -154,7 +154,7 @@ public abstract class AbstractContainerScreenMixin {
 	}
 
 	@Inject(method = "renderSlot", at = @At("HEAD"), cancellable = true)
-	private void villager_self_defense$hideGearRender(GuiGraphics graphics, Slot slot, CallbackInfo ci) {
+	private void villager_self_defense$hideGearRender(GuiGraphics graphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
 		if (!((Object) this instanceof MerchantScreen merchant)) {
 			return;
 		}
