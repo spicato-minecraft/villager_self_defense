@@ -30,3 +30,18 @@ The output JAR is at `build/libs/villager_self_defense-1.0.0.jar` (version from 
 ## Development
 
 Open the project in your IDE and import as a Gradle project. Run the `client` or `server` Gradle tasks to launch the game with the mod.
+
+## Branch Policy
+
+Each supported Minecraft version has its own long-lived branch named after the exact `minecraft_version` in `gradle.properties` (e.g. `1.21.10`, `1.20.10`). Version branches are the source of truth; `main` is not used.
+
+- **Default branch:** latest supported version (`1.21.10`)
+- **Feature/fix work:** branch from the target version as `{version}/feature-name`, merge back into the version branch
+- **New MC version:** create `{version}` from the prior version branch, bump `gradle.properties`, push to origin
+- **Retiring a version:** tag the final release, then archive the branch (do not delete)
+
+```bash
+git clone https://github.com/spicato-spicato/villager_self_defense.git
+cd villager_self_defense
+git checkout 1.21.10   # or 1.20.10 for the older supported version
+```
