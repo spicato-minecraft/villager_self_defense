@@ -18,12 +18,12 @@ public class HealthRegenGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
 
 		long[] observeFrom = {-1L};
 
 		context.succeedWhen(() -> {
 			if (observeFrom[0] < 0L) {
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
 				observeFrom[0] = context.getLevel().getGameTime();
 				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting through cooldown window");
 			}
