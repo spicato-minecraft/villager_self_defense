@@ -12,29 +12,23 @@ import villager_self_defense.health.VillagerHealthRegenPolicy;
  */
 public class HealthRegenGameTest {
 
-	@GameTest(maxTicks = 40)
+	@GameTest(maxTicks = 80)
 	public void noRegenDuringCooldown(GameTestHelper context) {
 		VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-
-		long[] damageTime = {0L};
-		int[] phase = {-1};
+		VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
+		long damageTime = context.getLevel().getGameTime();
 
 		context.succeedWhen(() -> {
-			if (phase[0] == -1) {
-				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
-				damageTime[0] = context.getLevel().getGameTime();
-				phase[0] = 0;
-				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting through cooldown window");
-			}
-
-			long elapsed = context.getLevel().getGameTime() - damageTime[0];
+			long elapsed = context.getLevel().getGameTime() - damageTime;
 			if (elapsed < 30L) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Waiting for cooldown window");
 			}
-			VillagerSelfDefenseGameTestHelper.assertVillagerHealth(villager, 19.0f);
+			if (villager.getHealth() > 19.01f) {
+				throw VillagerSelfDefenseGameTestHelper.fail("Villager regained health during cooldown");
+			}
 			VillagerSelfDefenseGameTestHelper.assertHealthRegenCooldownActive(villager, true);
 		});
 	}

@@ -214,8 +214,9 @@ public final class VillagerSelfDefenseGameTestHelper {
 	/** Sets wounded HP and stamps regen cooldown without relying on damage events. */
 	public static void woundVillagerForRegenTest(GameTestHelper context, Villager villager, float health) {
 		setVillagerHealth(villager, health);
+		long gameTime = context.getLevel().getGameTime();
 		healthRegenHolder(villager).villager_self_defense$setLastQualifyingDamageGameTime(
-				context.getLevel().getGameTime()
+				gameTime == 0L ? 1L : gameTime
 		);
 	}
 
