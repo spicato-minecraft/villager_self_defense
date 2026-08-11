@@ -84,18 +84,60 @@ class DefenseEligibilityTest {
 
 	@Test
 	void shouldMobDefenseApply_allowsAdultVillagerAndNonPlayerAttacker() {
-		Villager adult = mock(Villager.class);
-		when(adult.isBaby()).thenReturn(false);
+		Villager adult = mockHealthyAdultVillager();
 		LivingEntity mobAttacker = mockLivingAttacker();
 		ModConfig config = enabledMobDefenseConfig();
 
 		assertTrue(DefenseEligibility.shouldMobDefenseApply(adult, mobAttacker, config));
 	}
 
+	@Test
+	void shouldMobDefenseApply_rejectsAdultAtLowHealthThreshold() {
+		Villager adult = mockLowHealthAdultVillager();
+		LivingEntity mobAttacker = mockLivingAttacker();
+		ModConfig config = enabledMobDefenseConfig();
+
+		assertFalse(DefenseEligibility.shouldMobDefenseApply(adult, mobAttacker, config));
+	}
+
+	@Test
+	void shouldMobDistressApply_allowsAdultAtLowHealthThreshold() {
+		Villager adult = mockLowHealthAdultVillager();
+		LivingEntity mobAttacker = mockLivingAttacker();
+		ModConfig config = enabledMobDefenseConfig();
+
+		assertTrue(DefenseEligibility.shouldMobDistressApply(adult, mobAttacker, config));
+	}
+
+	@Test
+	void shouldMobDistressApply_rejectsHealthyAdult() {
+		Villager adult = mockHealthyAdultVillager();
+		LivingEntity mobAttacker = mockLivingAttacker();
+		ModConfig config = enabledMobDefenseConfig();
+
+		assertFalse(DefenseEligibility.shouldMobDistressApply(adult, mobAttacker, config));
+	}
+
 	private static ServerLevel mockLevel(Difficulty difficulty) {
 		ServerLevel level = mock(ServerLevel.class);
 		when(level.getDifficulty()).thenReturn(difficulty);
 		return level;
+	}
+
+	private static Villager mockHealthyAdultVillager() {
+		Villager adult = mock(Villager.class);
+		when(adult.isBaby()).thenReturn(false);
+		when(adult.getMaxHealth()).thenReturn(20.0f);
+		when(adult.getHealth()).thenReturn(20.0f);
+		return adult;
+	}
+
+	private static Villager mockLowHealthAdultVillager() {
+		Villager adult = mock(Villager.class);
+		when(adult.isBaby()).thenReturn(false);
+		when(adult.getMaxHealth()).thenReturn(20.0f);
+		when(adult.getHealth()).thenReturn(6.0f);
+		return adult;
 	}
 
 	private static LivingEntity mockLivingAttacker() {

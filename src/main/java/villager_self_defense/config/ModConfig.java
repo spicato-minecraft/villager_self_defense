@@ -67,6 +67,11 @@ public final class ModConfig {
 	 */
 	public boolean renderVillagerArmor = true;
 
+	/** When true, villagers at or below {@link #lowHealthFleeThreshold} flee instead of fighting. */
+	public boolean lowHealthFleeEnabled = true;
+	/** Fraction of max HP at or below which flee policy applies. Default ⅓. */
+	public double lowHealthFleeThreshold = 1.0 / 3.0;
+
 	/** Shared config for server + client (gear slot validation); set from {@link villager_self_defense.VillagerSelfDefense} and client init. */
 	public static ModConfig get() {
 		ModConfig i = instance;
@@ -168,6 +173,12 @@ public final class ModConfig {
 		}
 		if (!root.has("renderVillagerArmor")) {
 			cfg.renderVillagerArmor = true;
+		}
+		if (!root.has("lowHealthFleeEnabled")) {
+			cfg.lowHealthFleeEnabled = true;
+		}
+		if (!root.has("lowHealthFleeThreshold")) {
+			cfg.lowHealthFleeThreshold = 1.0 / 3.0;
 		}
 		return addedKeys;
 	}

@@ -39,7 +39,8 @@ public final class AllyDefenseNotifier {
 		double radius = config.allyRadius;
 		double radiusSq = radius * radius;
 		AABB box = victim.getBoundingBox().inflate(radius);
-		var candidates = level.getEntitiesOfClass(Villager.class, box, v -> v != victim && !v.isBaby() && v.isAlive());
+		var candidates = level.getEntitiesOfClass(Villager.class, box, v ->
+			v != victim && !v.isBaby() && v.isAlive() && !DefenseManager.getState(v).lowHealthFleeActive);
 		candidates.sort(Comparator.comparingDouble(v -> v.distanceToSqr(victim)));
 
 		int notified = 0;
@@ -51,6 +52,9 @@ public final class AllyDefenseNotifier {
 				break;
 			}
 			VillagerDefenseState allyState = DefenseManager.getState(ally);
+			if (allyState.lowHealthFleeActive) {
+				continue;
+			}
 			UUID attackerId = attacker.getUUID();
 			if (allyState.defenseActive && allyState.targetUuid != null && !allyState.targetUuid.equals(attackerId)) {
 				continue;
@@ -86,7 +90,7 @@ public final class AllyDefenseNotifier {
 				continue;
 			}
 			VillagerDefenseState s = DefenseManager.getState(v);
-			if (!s.defenseActive || s.targetUuid == null) {
+			if (!s.defenseActive || s.targetUuid == null || s.lowHealthFleeActive) {
 				continue;
 			}
 			s.refreshThreat(time);

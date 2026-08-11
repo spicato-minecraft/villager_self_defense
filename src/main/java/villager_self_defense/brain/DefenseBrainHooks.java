@@ -43,4 +43,28 @@ public final class DefenseBrainHooks {
 		brain.eraseMemory(MemoryModuleType.LOOK_TARGET);
 		villager.refreshBrain(level);
 	}
+
+	/**
+	 * Stand down from mod fight suppression and let vanilla PANIC/flee take over.
+	 * Seeds hurt-by-entity so panic behaviors have a threat to flee from.
+	 */
+	public static void releaseFightAndAllowFlee(Villager villager, LivingEntity threat) {
+		Brain<Villager> brain = villager.getBrain();
+		brain.eraseMemory(MemoryModuleType.ATTACK_TARGET);
+		brain.eraseMemory(MemoryModuleType.ATTACK_COOLING_DOWN);
+		brain.setMemory(MemoryModuleType.HURT_BY_ENTITY, Optional.of(threat));
+		brain.setActiveActivityIfPossible(Activity.PANIC);
+	}
+
+	/**
+	 * Cleanup flee-specific brain state after panic ends.
+	 */
+	public static void clearFleeState(ServerLevel level, Villager villager) {
+		Brain<Villager> brain = villager.getBrain();
+		brain.eraseMemory(MemoryModuleType.HURT_BY);
+		brain.eraseMemory(MemoryModuleType.HURT_BY_ENTITY);
+		brain.eraseMemory(MemoryModuleType.IS_PANICKING);
+		brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+		villager.refreshBrain(level);
+	}
 }

@@ -21,6 +21,22 @@ public final class DefenseEligibility {
 		if (!config.mobDefenseEnabled) {
 			return false;
 		}
+		if (!attacker.isAlive()) {
+			return false;
+		}
+		if (attacker instanceof Player) {
+			return false;
+		}
+		return shouldEnterDefense(villager, config);
+	}
+
+	/**
+	 * Tier 1 distress: victim is too wounded to fight but can still call nearby allies against a mob attacker.
+	 */
+	public static boolean shouldMobDistressApply(Villager villager, LivingEntity attacker, ModConfig config) {
+		if (!config.mobDefenseEnabled) {
+			return false;
+		}
 		if (villager.isBaby()) {
 			return false;
 		}
@@ -30,7 +46,17 @@ public final class DefenseEligibility {
 		if (attacker instanceof Player) {
 			return false;
 		}
-		return true;
+		return !shouldEnterDefense(villager, config);
+	}
+
+	/**
+	 * Whether an adult villager may enter or continue mod defense (blocked at/below low-health threshold).
+	 */
+	public static boolean shouldEnterDefense(Villager villager, ModConfig config) {
+		if (villager.isBaby()) {
+			return false;
+		}
+		return !LowHealthFleePolicy.shouldBlockDefenseActivation(villager, config);
 	}
 
 	/**

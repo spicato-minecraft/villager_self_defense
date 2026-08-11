@@ -30,6 +30,7 @@ import net.minecraft.server.level.ClientInformation;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.DefenseMovementSpeed;
+import villager_self_defense.defense.LowHealthFleePolicy;
 import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.defense.VillagerDefenseState;
 import villager_self_defense.gear.VillagerGearStash;
@@ -62,6 +63,8 @@ public final class VillagerSelfDefenseGameTestHelper {
 		config.groupDefenseEnabled = true;
 		config.allyRadius = 16.0;
 		config.maxAlliesNotifiedPerEvent = 32;
+		config.lowHealthFleeEnabled = true;
+		config.lowHealthFleeThreshold = 1.0 / 3.0;
 		ModConfig.set(config);
 		DefenseManager.setConfig(config);
 		return config;
@@ -188,6 +191,43 @@ public final class VillagerSelfDefenseGameTestHelper {
 		Brain<Villager> brain = villager.getBrain();
 		if (!brain.isActive(Activity.FIGHT)) {
 			throw fail("Expected FIGHT brain activity to be active");
+		}
+	}
+
+	public static void setVillagerHealth(Villager villager, float health) {
+		villager.setHealth(health);
+	}
+
+	public static void assertPanicBrain(Villager villager) {
+		Brain<Villager> brain = villager.getBrain();
+		if (!brain.isActive(Activity.PANIC)) {
+			throw fail("Expected PANIC brain activity to be active");
+		}
+	}
+
+	public static void assertNotFightBrain(Villager villager) {
+		Brain<Villager> brain = villager.getBrain();
+		if (brain.isActive(Activity.FIGHT)) {
+			throw fail("Expected FIGHT brain activity to be inactive");
+		}
+	}
+
+	public static void assertLowHealthFleeActive(Villager villager, boolean expected) {
+		boolean actual = DefenseManager.getState(villager).lowHealthFleeActive;
+		if (actual != expected) {
+			throw fail("Expected lowHealthFleeActive=" + expected + " but was " + actual);
+		}
+	}
+
+	public static void damageUntilThreshold(Villager villager, LivingEntity attacker, ModConfig config, GameTestHelper context) {
+		for (int i = 0; i < 50; i++) {
+			if (LowHealthFleePolicy.isAtOrBelowThreshold(villager, config)) {
+				return;
+			}
+			damageFromMob(context, villager, attacker, 1.0f);
+		}
+		if (!LowHealthFleePolicy.isAtOrBelowThreshold(villager, config)) {
+			throw fail("Failed to damage villager to low-health flee threshold within 50 hits");
 		}
 	}
 

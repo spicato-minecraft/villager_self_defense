@@ -4,8 +4,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.inventory.MerchantMenu;
 import villager_self_defense.brain.DefenseBrainHooks;
 import villager_self_defense.config.ModConfig;
@@ -47,6 +49,11 @@ public final class DefenseManager {
 	 */
 	public static void preBrainTick(ServerLevel level, Villager villager) {
 		VillagerDefenseState state = getState(villager);
+
+		if (state.lowHealthFleeActive) {
+			return;
+		}
+
 		if (!state.defenseActive) {
 			return;
 		}
@@ -54,6 +61,12 @@ public final class DefenseManager {
 		if (target == null || !target.isAlive()) {
 			return;
 		}
+
+		if (LowHealthFleePolicy.shouldFleeInsteadOfFight(villager, config)) {
+			enterLowHealthFlee(level, villager, target);
+			return;
+		}
+
 		DefenseBrainHooks.applyFightState(villager, target);
 	}
 
@@ -69,11 +82,17 @@ public final class DefenseManager {
 		try {
 			VillagerDefenseState state = getState(villager);
 
+			if (state.defenseActive && LowHealthFleePolicy.shouldFleeInsteadOfFight(villager, config)) {
+				enterLowHealthFlee(level, villager, attacker);
+				return;
+			}
+
 			if (!(attacker instanceof Player player)) {
-				if (!DefenseEligibility.shouldMobDefenseApply(villager, attacker, config)) {
-					return;
+				if (DefenseEligibility.shouldMobDefenseApply(villager, attacker, config)) {
+					activateOrRefreshMobDefense(level, villager, attacker, time);
+				} else if (DefenseEligibility.shouldMobDistressApply(villager, attacker, config)) {
+					AllyDefenseNotifier.notifyAlliesInRadius(level, villager, attacker, time, config);
 				}
-				activateOrRefreshMobDefense(level, villager, attacker, time);
 				return;
 			}
 
@@ -89,9 +108,17 @@ public final class DefenseManager {
 
 			long windowTicks = (long) config.playerHitWindowSeconds * 20L;
 			UUID playerId = player.getUUID();
+			boolean victimCanSelfDefend = DefenseEligibility.shouldEnterDefense(villager, config);
 
 			int countBefore = PlayerHitTracker.countInWindow(level, playerId, time, windowTicks);
 			int countAfter = PlayerHitTracker.recordHitAndCount(level, playerId, time, windowTicks);
+
+			if (!victimCanSelfDefend) {
+				if (countAfter >= config.playerHitsToActivate) {
+					AllyDefenseNotifier.notifyAlliesInRadius(level, villager, player, time, config);
+				}
+				return;
+			}
 
 			if (!state.defenseActive) {
 				if (countAfter < config.playerHitsToActivate) {
@@ -160,6 +187,12 @@ public final class DefenseManager {
 
 	public static void tick(ServerLevel level, Villager villager) {
 		VillagerDefenseState state = getState(villager);
+
+		if (state.lowHealthFleeActive) {
+			tickLowHealthFlee(level, villager, state);
+			return;
+		}
+
 		if (!state.defenseActive) {
 			return;
 		}
@@ -174,6 +207,39 @@ public final class DefenseManager {
 			return;
 		}
 		DefenseDispersal.tryPeriodicRebalance(level, villager, time, config);
+	}
+
+	private static void tickLowHealthFlee(ServerLevel level, Villager villager, VillagerDefenseState state) {
+		Brain<Villager> brain = villager.getBrain();
+
+		if (brain.isActive(Activity.PANIC)) {
+			return;
+		}
+
+		LivingEntity pendingThreat = state.resolvePendingReentryTarget(level);
+		state.clearLowHealthFlee();
+		DefenseBrainHooks.clearFleeState(level, villager);
+
+		if (pendingThreat != null
+				&& !LowHealthFleePolicy.shouldBlockDefenseActivation(villager, config)
+				&& DefenseEligibility.isValidThreatTarget(pendingThreat, level)) {
+			activateVillagerAgainstAttacker(level, villager, pendingThreat, level.getGameTime());
+		}
+	}
+
+	private static void enterLowHealthFlee(ServerLevel level, Villager villager, LivingEntity threat) {
+		VillagerDefenseState state = getState(villager);
+		if (state.lowHealthFleeActive) {
+			return;
+		}
+
+		DefenseMovementSpeed.remove(villager);
+		VillagerDefenseEntityData.setDefenseActive(villager, false);
+		VillagerGearSync.clearMainHandFromEntity(villager);
+		closeMerchantUiForVillager(level, villager);
+
+		state.enterLowHealthFlee(threat);
+		DefenseBrainHooks.releaseFightAndAllowFlee(villager, threat);
 	}
 
 	public static void standDown(ServerLevel level, Villager villager) {

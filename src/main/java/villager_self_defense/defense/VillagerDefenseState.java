@@ -11,6 +11,10 @@ import java.util.UUID;
  */
 public final class VillagerDefenseState {
 	public boolean defenseActive;
+	/** True while low-health flee is driving PANIC instead of FIGHT. */
+	public boolean lowHealthFleeActive;
+	/** Remembered threat during flee for AC #5 re-entry. */
+	public UUID pendingReentryTargetUuid;
 	public UUID targetUuid;
 	/** Game time (level) of last damage that refreshed stand-down. */
 	public long lastThreatGameTime;
@@ -25,10 +29,31 @@ public final class VillagerDefenseState {
 		this.lastThreatGameTime = gameTime;
 	}
 
+	public void enterLowHealthFlee(LivingEntity threat) {
+		this.lowHealthFleeActive = true;
+		this.pendingReentryTargetUuid = threat.getUUID();
+		this.defenseActive = false;
+	}
+
+	public void clearLowHealthFlee() {
+		this.lowHealthFleeActive = false;
+		this.pendingReentryTargetUuid = null;
+	}
+
 	public void clear() {
 		this.defenseActive = false;
+		this.lowHealthFleeActive = false;
+		this.pendingReentryTargetUuid = null;
 		this.targetUuid = null;
 		this.lastThreatGameTime = 0L;
+	}
+
+	public LivingEntity resolvePendingReentryTarget(ServerLevel level) {
+		if (pendingReentryTargetUuid == null) {
+			return null;
+		}
+		var entity = level.getEntity(pendingReentryTargetUuid);
+		return entity instanceof LivingEntity living && living.isAlive() ? living : null;
 	}
 
 	public boolean shouldStandDownQuiet(ModConfig config, long gameTime) {

@@ -51,6 +51,9 @@ public final class DefenseDispersal {
 		if (!anchorState.defenseActive) {
 			return;
 		}
+		if (anchorState.lowHealthFleeActive) {
+			return;
+		}
 
 		List<LivingEntity> threats = collectThreats(level, anchor, config);
 		long sig = threatSignature(threats);
@@ -121,7 +124,7 @@ public final class DefenseDispersal {
 				continue;
 			}
 			VillagerDefenseState s = DefenseManager.getState(v);
-			if (!s.defenseActive) {
+			if (!s.defenseActive || s.lowHealthFleeActive) {
 				continue;
 			}
 			list.add(v);
@@ -146,6 +149,9 @@ public final class DefenseDispersal {
 		Map<UUID, Integer> counts = new HashMap<>();
 
 		for (Villager villager : defenders) {
+			if (DefenseManager.getState(villager).lowHealthFleeActive) {
+				continue;
+			}
 			List<LivingEntity> byDist = new ArrayList<>(threats);
 			byDist.sort(Comparator.comparingDouble(t -> t.distanceToSqr(villager)));
 
