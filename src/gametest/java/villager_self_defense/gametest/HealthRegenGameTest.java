@@ -19,11 +19,19 @@ public class HealthRegenGameTest {
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 
-		long damageTime = context.getLevel().getGameTime();
-		VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
+		long[] damageTime = {0L};
+		int[] phase = {-1};
 
 		context.succeedWhen(() -> {
-			long elapsed = context.getLevel().getGameTime() - damageTime;
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
+				VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Damage applied, waiting through cooldown window");
+			}
+
+			long elapsed = context.getLevel().getGameTime() - damageTime[0];
 			if (elapsed < 30L) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Waiting for cooldown window");
 			}
@@ -39,15 +47,23 @@ public class HealthRegenGameTest {
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 
-		long damageTime = context.getLevel().getGameTime();
-		VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
+		long[] damageTime = {0L};
+		int[] phase = {-1};
 
 		long waitTicks = VillagerSelfDefenseGameTestHelper.TEST_HEALTH_REGEN_COOLDOWN_TICKS
 				+ VillagerHealthRegenPolicy.HEAL_INTERVAL_TICKS
 				+ 5L;
 
 		context.succeedWhen(() -> {
-			long elapsed = context.getLevel().getGameTime() - damageTime;
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
+				VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Damage applied, waiting for post-cooldown regen");
+			}
+
+			long elapsed = context.getLevel().getGameTime() - damageTime[0];
 			if (elapsed < waitTicks) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Waiting for post-cooldown regen");
 			}
