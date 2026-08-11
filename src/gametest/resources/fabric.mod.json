@@ -8,7 +8,8 @@
 		"fabric-gametest": [
 			"villager_self_defense.gametest.HelperSmokeGameTest",
 			"villager_self_defense.gametest.InfraSmokeGameTest",
-			"villager_self_defense.gametest.LowHealthFleeGameTest"
+			"villager_self_defense.gametest.LowHealthFleeGameTest",
+			"villager_self_defense.gametest.HealthRegenGameTest"
 		]
 	},
 	"depends": {

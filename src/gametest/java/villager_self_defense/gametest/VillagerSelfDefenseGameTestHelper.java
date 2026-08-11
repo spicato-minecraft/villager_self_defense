@@ -35,6 +35,8 @@ import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.defense.VillagerDefenseState;
 import villager_self_defense.gear.VillagerGearStash;
 import villager_self_defense.gear.VillagerGearSync;
+import villager_self_defense.health.VillagerHealthRegenHolder;
+import villager_self_defense.health.VillagerHealthRegenPolicy;
 import villager_self_defense.mixin.VillagerAccessorMixin;
 
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static final int GEAR_STASH_SIZE = 5;
 	public static final int TEST_STAND_DOWN_QUIET_SECONDS = 2;
+	public static final int TEST_HEALTH_REGEN_COOLDOWN_TICKS = 40;
 
 	private VillagerSelfDefenseGameTestHelper() {
 	}
@@ -65,6 +68,8 @@ public final class VillagerSelfDefenseGameTestHelper {
 		config.maxAlliesNotifiedPerEvent = 32;
 		config.lowHealthFleeEnabled = true;
 		config.lowHealthFleeThreshold = 1.0 / 3.0;
+		config.healthRegenEnabled = true;
+		config.healthRegenCooldownTicks = TEST_HEALTH_REGEN_COOLDOWN_TICKS;
 		ModConfig.set(config);
 		DefenseManager.setConfig(config);
 		return config;
@@ -125,6 +130,14 @@ public final class VillagerSelfDefenseGameTestHelper {
 		DamageSource source = level.damageSources().playerAttack(player);
 		if (!villager.hurtServer(level, source, amount)) {
 			throw fail("Failed to apply player damage to villager");
+		}
+	}
+
+	public static void damageVillagerForRegenTest(GameTestHelper context, Villager villager, float amount) {
+		ServerLevel level = context.getLevel();
+		DamageSource source = level.damageSources().generic();
+		if (!villager.hurtServer(level, source, amount)) {
+			throw fail("Failed to apply generic damage to villager");
 		}
 	}
 
@@ -196,6 +209,54 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static void setVillagerHealth(Villager villager, float health) {
 		villager.setHealth(health);
+	}
+
+	public static VillagerHealthRegenHolder healthRegenHolder(Villager villager) {
+		if (!(villager instanceof VillagerHealthRegenHolder holder)) {
+			throw fail("Villager is missing VillagerHealthRegenHolder mixin");
+		}
+		return holder;
+	}
+
+	public static void expireHealthRegenCooldown(Villager villager, ServerLevel level) {
+		VillagerHealthRegenHolder holder = healthRegenHolder(villager);
+		long gameTime = level.getGameTime();
+		holder.villager_self_defense$setLastQualifyingDamageGameTime(
+				gameTime - TEST_HEALTH_REGEN_COOLDOWN_TICKS - 1L
+		);
+	}
+
+	public static void assertVillagerHealth(Villager villager, float expected) {
+		if (Math.abs(villager.getHealth() - expected) > 0.01f) {
+			throw fail("Expected villager health " + expected + " but was " + villager.getHealth());
+		}
+	}
+
+	public static void assertHealthRegenCooldownActive(Villager villager, boolean expected) {
+		boolean active = VillagerHealthRegenPolicy.hasActiveCooldown(
+				healthRegenHolder(villager).villager_self_defense$getLastQualifyingDamageGameTime()
+		);
+		if (active != expected) {
+			throw fail("Expected health regen cooldown active=" + expected + " but was " + active);
+		}
+	}
+
+	public static ModConfig applyHealthRegenTestConfig() {
+		ModConfig config = applyTestConfig();
+		config.mobDefenseEnabled = false;
+		config.playerActivationEnabled = false;
+		ModConfig.set(config);
+		DefenseManager.setConfig(config);
+		return config;
+	}
+
+	public static void forceDefenseState(Villager villager, LivingEntity target, ServerLevel level) {
+		DefenseManager.getState(villager).enterDefense(target, level.getGameTime());
+		VillagerDefenseEntityData.setDefenseActive(villager, true);
+	}
+
+	public static void clearDefenseState(GameTestHelper context, Villager villager) {
+		DefenseManager.standDown(context.getLevel(), villager);
 	}
 
 	public static void assertPanicBrain(Villager villager) {

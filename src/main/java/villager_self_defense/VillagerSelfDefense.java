@@ -13,6 +13,7 @@ import villager_self_defense.defense.DefenseDispersal;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.gear.GearDamageSync;
+import villager_self_defense.health.VillagerHealthRegenDamageHandler;
 
 public class VillagerSelfDefense implements ModInitializer {
 	public static final String MOD_ID = "villager_self_defense";
@@ -26,6 +27,7 @@ public class VillagerSelfDefense implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(GearProfessionLockS2CPayload.TYPE, GearProfessionLockS2CPayload.CODEC);
 		DefenseManager.setConfig(config);
 		DamageHandler.register();
+		VillagerHealthRegenDamageHandler.register();
 		GearDamageSync.register();
 
 		ServerEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {

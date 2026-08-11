@@ -72,6 +72,11 @@ public final class ModConfig {
 	/** Fraction of max HP at or below which flee policy applies. Default ⅓. */
 	public double lowHealthFleeThreshold = 1.0 / 3.0;
 
+	/** When true, adult villagers passively regen after a post-damage cooldown. */
+	public boolean healthRegenEnabled = true;
+	/** Game ticks after last qualifying hit before mod regen begins. Default one Minecraft day. */
+	public int healthRegenCooldownTicks = 24000;
+
 	/** Shared config for server + client (gear slot validation); set from {@link villager_self_defense.VillagerSelfDefense} and client init. */
 	public static ModConfig get() {
 		ModConfig i = instance;
@@ -179,6 +184,12 @@ public final class ModConfig {
 		}
 		if (!root.has("lowHealthFleeThreshold")) {
 			cfg.lowHealthFleeThreshold = 1.0 / 3.0;
+		}
+		if (!root.has("healthRegenEnabled")) {
+			cfg.healthRegenEnabled = true;
+		}
+		if (!root.has("healthRegenCooldownTicks")) {
+			cfg.healthRegenCooldownTicks = 24000;
 		}
 		return addedKeys;
 	}

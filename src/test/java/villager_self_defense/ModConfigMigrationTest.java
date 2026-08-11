@@ -61,4 +61,29 @@ class ModConfigMigrationTest {
 
 		assertFalse(LowHealthFleePolicy.isAtOrBelowThreshold(entity, config));
 	}
+
+	@Test
+	void healthRegenDefaults() {
+		ModConfig config = new ModConfig();
+
+		assertTrue(config.healthRegenEnabled);
+		assertEquals(24000, config.healthRegenCooldownTicks);
+	}
+
+	@Test
+	void applyDefaultsForMissingKeys_fillsHealthRegenDefaults() throws Exception {
+		JsonObject root = new JsonObject();
+		root.addProperty("mobDefenseEnabled", true);
+
+		ModConfig config = new ModConfig();
+		config.healthRegenEnabled = false;
+		config.healthRegenCooldownTicks = 0;
+
+		Method migrate = ModConfig.class.getDeclaredMethod("applyDefaultsForMissingKeys", JsonObject.class, ModConfig.class);
+		migrate.setAccessible(true);
+		migrate.invoke(null, root, config);
+
+		assertTrue(config.healthRegenEnabled);
+		assertEquals(24000, config.healthRegenCooldownTicks);
+	}
 }

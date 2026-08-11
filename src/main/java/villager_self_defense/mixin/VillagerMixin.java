@@ -29,13 +29,15 @@ import villager_self_defense.defense.DefenseMeleeContext;
 import villager_self_defense.defense.VillagerDefenseEntityData;
 import villager_self_defense.gear.VillagerGearStashHolder;
 import villager_self_defense.gear.VillagerGearSync;
+import villager_self_defense.health.VillagerHealthRegen;
+import villager_self_defense.health.VillagerHealthRegenHolder;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Mixin(Villager.class)
-public abstract class VillagerMixin implements VillagerGearStashHolder {
+public abstract class VillagerMixin implements VillagerGearStashHolder, VillagerHealthRegenHolder {
 	@Unique
 	private static final String villager_self_defense$GEAR_SLOT_PREFIX = "villager_self_defense:gear_slot_";
 
@@ -43,7 +45,42 @@ public abstract class VillagerMixin implements VillagerGearStashHolder {
 	private static final String villager_self_defense$GEAR_STASH_LEGACY_LIST = "villager_self_defense:gear_stash";
 
 	@Unique
+	private static final String villager_self_defense$LAST_QUALIFYING_DAMAGE_KEY =
+			"villager_self_defense:last_qualifying_damage_game_time";
+
+	@Unique
 	private final NonNullList<ItemStack> villager_self_defense$gearStash = NonNullList.withSize(5, ItemStack.EMPTY);
+
+	@Unique
+	private long villager_self_defense$lastQualifyingDamageGameTime;
+
+	@Unique
+	private long villager_self_defense$lastHealTick;
+
+	@Override
+	public long villager_self_defense$getLastQualifyingDamageGameTime() {
+		return villager_self_defense$lastQualifyingDamageGameTime;
+	}
+
+	@Override
+	public void villager_self_defense$setLastQualifyingDamageGameTime(long gameTime) {
+		villager_self_defense$lastQualifyingDamageGameTime = gameTime;
+	}
+
+	@Override
+	public void villager_self_defense$clearLastQualifyingDamageGameTime() {
+		villager_self_defense$lastQualifyingDamageGameTime = 0L;
+	}
+
+	@Override
+	public long villager_self_defense$getLastHealTick() {
+		return villager_self_defense$lastHealTick;
+	}
+
+	@Override
+	public void villager_self_defense$setLastHealTick(long gameTime) {
+		villager_self_defense$lastHealTick = gameTime;
+	}
 
 	@Override
 	public NonNullList<ItemStack> villager_self_defense$getGearStash() {
@@ -85,6 +122,22 @@ public abstract class VillagerMixin implements VillagerGearStashHolder {
 			}
 		}
 		VillagerGearSync.reconcileAfterLoad((Villager) (Object) this);
+	}
+
+	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+	private void villager_self_defense$saveHealthRegenCooldown(ValueOutput output, CallbackInfo ci) {
+		if (villager_self_defense$lastQualifyingDamageGameTime == 0L) {
+			output.discard(villager_self_defense$LAST_QUALIFYING_DAMAGE_KEY);
+		} else {
+			output.store(villager_self_defense$LAST_QUALIFYING_DAMAGE_KEY, Codec.LONG, villager_self_defense$lastQualifyingDamageGameTime);
+		}
+	}
+
+	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+	private void villager_self_defense$readHealthRegenCooldown(ValueInput input, CallbackInfo ci) {
+		villager_self_defense$lastQualifyingDamageGameTime =
+				input.read(villager_self_defense$LAST_QUALIFYING_DAMAGE_KEY, Codec.LONG).orElse(0L);
+		villager_self_defense$lastHealTick = 0L;
 	}
 
 	@Inject(method = "defineSynchedData", at = @At("TAIL"))
@@ -141,7 +194,9 @@ public abstract class VillagerMixin implements VillagerGearStashHolder {
 
 	@Inject(method = "customServerAiStep", at = @At("TAIL"))
 	private void villager_self_defense$tickDefense(ServerLevel level, CallbackInfo ci) {
-		DefenseManager.tick(level, (Villager) (Object) this);
+		Villager self = (Villager) (Object) this;
+		DefenseManager.tick(level, self);
+		VillagerHealthRegen.tick(level, self);
 		DefenseMeleeContext.clear();
 	}
 
