@@ -24,11 +24,10 @@ public class HealthRegenGameTest {
 
 		context.succeedWhen(() -> {
 			if (phase[0] == -1) {
-				VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
-				VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
 				damageTime[0] = context.getLevel().getGameTime();
 				phase[0] = 0;
-				throw VillagerSelfDefenseGameTestHelper.fail("Damage applied, waiting through cooldown window");
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting through cooldown window");
 			}
 
 			long elapsed = context.getLevel().getGameTime() - damageTime[0];
@@ -56,11 +55,10 @@ public class HealthRegenGameTest {
 
 		context.succeedWhen(() -> {
 			if (phase[0] == -1) {
-				VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
-				VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
 				damageTime[0] = context.getLevel().getGameTime();
 				phase[0] = 0;
-				throw VillagerSelfDefenseGameTestHelper.fail("Damage applied, waiting for post-cooldown regen");
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting for post-cooldown regen");
 			}
 
 			long elapsed = context.getLevel().getGameTime() - damageTime[0];
@@ -128,17 +126,24 @@ public class HealthRegenGameTest {
 		var source = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 		var loaded = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 2, 1, 1);
 
-		long damageTime = context.getLevel().getGameTime();
-		VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, source, 1.0f);
-		VillagerSelfDefenseGameTestHelper.roundTripAdditionalSaveData(context, source, loaded);
-		VillagerSelfDefenseGameTestHelper.setVillagerHealth(loaded, 19.0f);
+		long[] damageTime = {0L};
+		int[] phase = {-1};
 
 		long waitTicks = VillagerSelfDefenseGameTestHelper.TEST_HEALTH_REGEN_COOLDOWN_TICKS
 				+ VillagerHealthRegenPolicy.HEAL_INTERVAL_TICKS
 				+ 5L;
 
 		context.succeedWhen(() -> {
-			long elapsed = context.getLevel().getGameTime() - damageTime;
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, source, 19.0f);
+				VillagerSelfDefenseGameTestHelper.roundTripAdditionalSaveData(context, source, loaded);
+				VillagerSelfDefenseGameTestHelper.setVillagerHealth(loaded, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting for persisted cooldown to expire");
+			}
+
+			long elapsed = context.getLevel().getGameTime() - damageTime[0];
 			if (elapsed < waitTicks) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Waiting for persisted cooldown to expire and regen");
 			}
@@ -156,11 +161,18 @@ public class HealthRegenGameTest {
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnBabyVillager(context, 1, 1, 1);
 
-		long damageTime = context.getLevel().getGameTime();
-		VillagerSelfDefenseGameTestHelper.damageVillagerForRegenTest(context, villager, 1.0f);
+		long[] damageTime = {0L};
+		int[] phase = {-1};
 
 		context.succeedWhen(() -> {
-			if (context.getLevel().getGameTime() - damageTime < 40L) {
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded baby villager, waiting to confirm no regen");
+			}
+
+			if (context.getLevel().getGameTime() - damageTime[0] < 40L) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Waiting to confirm baby never regens");
 			}
 			if (villager.getHealth() > 19.01f) {

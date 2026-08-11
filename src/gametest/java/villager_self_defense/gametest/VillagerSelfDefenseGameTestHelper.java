@@ -211,6 +211,14 @@ public final class VillagerSelfDefenseGameTestHelper {
 		villager.setHealth(health);
 	}
 
+	/** Sets wounded HP and stamps regen cooldown without relying on damage events. */
+	public static void woundVillagerForRegenTest(GameTestHelper context, Villager villager, float health) {
+		setVillagerHealth(villager, health);
+		healthRegenHolder(villager).villager_self_defense$setLastQualifyingDamageGameTime(
+				context.getLevel().getGameTime()
+		);
+	}
+
 	public static VillagerHealthRegenHolder healthRegenHolder(Villager villager) {
 		if (!(villager instanceof VillagerHealthRegenHolder holder)) {
 			throw fail("Villager is missing VillagerHealthRegenHolder mixin");
