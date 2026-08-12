@@ -8,38 +8,10 @@ import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.health.VillagerHealthRegenPolicy;
 
 /**
- * GameTests for passive villager health regen (AC #1, #7–#9, #11).
+ * GameTests for passive villager health regen (AC #7–#9, #11).
+ * Cooldown-before-regen policy is covered by {@code VillagerHealthRegenPolicyTest}.
  */
 public class HealthRegenGameTest {
-
-	@GameTest(maxTicks = 40)
-	public void noRegenDuringCooldown(GameTestHelper context) {
-		VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
-		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
-
-		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		VillagerSelfDefenseGameTestHelper.setWoundedVillagerHealth(villager, 19.0f);
-
-		int[] phase = {0};
-
-		context.succeedWhen(() -> {
-			if (phase[0] == 0) {
-				VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
-				VillagerSelfDefenseGameTestHelper.setWoundedVillagerHealth(villager, 19.0f);
-				if (villager.getHealth() > 19.01f) {
-					throw VillagerSelfDefenseGameTestHelper.fail("Waiting for villager wound setup");
-				}
-				VillagerSelfDefenseGameTestHelper.startHealthRegenCooldown(context, villager);
-				phase[0] = 1;
-				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, observing cooldown");
-			}
-
-			VillagerSelfDefenseGameTestHelper.assertHealthRegenCooldownActive(villager, true);
-			if (villager.getHealth() > 19.01f) {
-				throw VillagerSelfDefenseGameTestHelper.fail("Villager regained health during cooldown");
-			}
-		});
-	}
 
 	@GameTest(maxTicks = 200)
 	public void regenAfterCooldown(GameTestHelper context) {
