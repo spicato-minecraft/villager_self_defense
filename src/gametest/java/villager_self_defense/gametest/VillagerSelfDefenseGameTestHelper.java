@@ -211,13 +211,23 @@ public final class VillagerSelfDefenseGameTestHelper {
 		villager.setHealth(health);
 	}
 
-	/** Sets wounded HP and stamps regen cooldown without relying on damage events. */
-	public static void woundVillagerForRegenTest(GameTestHelper context, Villager villager, float health) {
+	/** Sets wounded HP without starting the regen cooldown clock. */
+	public static void setWoundedVillagerHealth(Villager villager, float health) {
 		setVillagerHealth(villager, health);
+	}
+
+	/** Starts or refreshes the regen cooldown at the current server game time. */
+	public static void startHealthRegenCooldown(GameTestHelper context, Villager villager) {
 		long gameTime = context.getLevel().getGameTime();
 		healthRegenHolder(villager).villager_self_defense$setLastQualifyingDamageGameTime(
 				gameTime == 0L ? 1L : gameTime
 		);
+	}
+
+	/** Sets wounded HP and stamps regen cooldown without relying on damage events. */
+	public static void woundVillagerForRegenTest(GameTestHelper context, Villager villager, float health) {
+		setWoundedVillagerHealth(villager, health);
+		startHealthRegenCooldown(context, villager);
 	}
 
 	public static VillagerHealthRegenHolder healthRegenHolder(Villager villager) {
