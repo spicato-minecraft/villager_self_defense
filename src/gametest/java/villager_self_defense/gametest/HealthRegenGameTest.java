@@ -18,12 +18,18 @@ public class HealthRegenGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+		VillagerSelfDefenseGameTestHelper.setWoundedVillagerHealth(villager, 19.0f);
 
 		int[] phase = {0};
 
 		context.succeedWhen(() -> {
 			if (phase[0] == 0) {
-				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
+				VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
+				VillagerSelfDefenseGameTestHelper.setWoundedVillagerHealth(villager, 19.0f);
+				if (villager.getHealth() > 19.01f) {
+					throw VillagerSelfDefenseGameTestHelper.fail("Waiting for villager wound setup");
+				}
+				VillagerSelfDefenseGameTestHelper.startHealthRegenCooldown(context, villager);
 				phase[0] = 1;
 				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, observing cooldown");
 			}
