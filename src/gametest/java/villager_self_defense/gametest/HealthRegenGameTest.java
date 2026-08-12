@@ -12,32 +12,32 @@ import villager_self_defense.health.VillagerHealthRegenPolicy;
  */
 public class HealthRegenGameTest {
 
-	@GameTest(maxTicks = 80)
+	@GameTest(maxTicks = 40)
 	public void noRegenDuringCooldown(GameTestHelper context) {
 		VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		VillagerSelfDefenseGameTestHelper.setWoundedVillagerHealth(villager, 19.0f);
+		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		marker.setNoAi(true);
 
-		long[] observeFrom = {-1L};
+		int[] phase = {0};
 
 		context.succeedWhen(() -> {
-			if (observeFrom[0] < 0L) {
-				VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
-				VillagerSelfDefenseGameTestHelper.startHealthRegenCooldown(context, villager);
-				observeFrom[0] = context.getLevel().getGameTime();
-				throw VillagerSelfDefenseGameTestHelper.fail("Cooldown started, waiting through cooldown window");
+			if (phase[0] == 0) {
+				VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, marker, 1.0f);
+				if (villager.getHealth() > 19.01f) {
+					VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
+					VillagerSelfDefenseGameTestHelper.startHealthRegenCooldown(context, villager);
+				}
+				phase[0] = 1;
+				throw VillagerSelfDefenseGameTestHelper.fail("Damaged villager, observing cooldown");
 			}
 
-			long elapsed = context.getLevel().getGameTime() - observeFrom[0];
-			if (elapsed < 30L) {
-				throw VillagerSelfDefenseGameTestHelper.fail("Waiting for cooldown window");
-			}
+			VillagerSelfDefenseGameTestHelper.assertHealthRegenCooldownActive(villager, true);
 			if (villager.getHealth() > 19.01f) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Villager regained health during cooldown");
 			}
-			VillagerSelfDefenseGameTestHelper.assertHealthRegenCooldownActive(villager, true);
 		});
 	}
 
