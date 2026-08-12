@@ -18,20 +18,14 @@ public class HealthRegenGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
-		marker.setNoAi(true);
 
 		int[] phase = {0};
 
 		context.succeedWhen(() -> {
 			if (phase[0] == 0) {
-				VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, marker, 1.0f);
-				if (villager.getHealth() > 19.01f) {
-					VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 19.0f);
-					VillagerSelfDefenseGameTestHelper.startHealthRegenCooldown(context, villager);
-				}
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
 				phase[0] = 1;
-				throw VillagerSelfDefenseGameTestHelper.fail("Damaged villager, observing cooldown");
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, observing cooldown");
 			}
 
 			VillagerSelfDefenseGameTestHelper.assertHealthRegenCooldownActive(villager, true);
