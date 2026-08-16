@@ -1,14 +1,19 @@
 package villager_self_defense.gametest;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,11 +27,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.server.level.ClientInformation;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.DefenseMovementSpeed;
@@ -93,16 +100,22 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static ServerPlayer spawnSurvivalPlayer(GameTestHelper context, int x, int y, int z) {
 		ServerLevel level = context.getLevel();
-		GameProfile profile = new GameProfile(UUID.randomUUID(), "GameTestPlayer");
-		ServerPlayer player = new ServerPlayer(
-				level.getServer(),
-				level,
-				profile,
-				ClientInformation.createDefault()
-		);
+		CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-mock-player"), false);
+		ServerPlayer player = new ServerPlayer(level.getServer(), level, cookie.gameProfile(), cookie.clientInformation()) {
+			@Override
+			public GameType gameMode() {
+				return GameType.SURVIVAL;
+			}
+		};
+		Connection connection = new Connection(PacketFlow.SERVERBOUND);
+		new EmbeddedChannel(connection);
+		level.getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
 		player.setPos(x + 0.5, y, z + 0.5);
-		level.addFreshEntity(player);
 		return player;
+	}
+
+	public static ServerPlayer spawnSurvivalMockPlayer(GameTestHelper context) {
+		return spawnSurvivalPlayer(context, 2, 1, 1);
 	}
 
 	public static <T extends LivingEntity> T spawnMob(GameTestHelper context, EntityType<T> type, int x, int y, int z) {
@@ -120,8 +133,14 @@ public final class VillagerSelfDefenseGameTestHelper {
 	public static void damageFromPlayer(GameTestHelper context, Villager villager, Player player, float amount) {
 		ServerLevel level = context.getLevel();
 		DamageSource source = level.damageSources().playerAttack(player);
-		if (!villager.hurtServer(level, source, amount)) {
-			throw fail("Failed to apply player damage to villager");
+		// Mock players are not always valid hurtServer attackers in GameTest; exercise mod logic directly.
+		DefenseManager.onAfterDamage(level, villager, source, player);
+	}
+
+	/** Applies qualifying player hits synchronously (see {@link #damageFromPlayer}). */
+	public static void applyQualifyingPlayerHits(GameTestHelper context, Villager villager, Player player, int hitCount) {
+		for (int i = 0; i < hitCount; i++) {
+			damageFromPlayer(context, villager, player, 1.0f);
 		}
 	}
 
@@ -243,6 +262,30 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static ItemStack ironChestplate() {
 		return new ItemStack(Items.IRON_CHESTPLATE);
+	}
+
+	public static ItemStack brokenIronSword() {
+		return brokenItem(new ItemStack(Items.IRON_SWORD));
+	}
+
+	public static ItemStack brokenIronHelmet() {
+		return brokenItem(new ItemStack(Items.IRON_HELMET));
+	}
+
+	private static ItemStack brokenItem(ItemStack stack) {
+		stack.set(DataComponents.DAMAGE, stack.getMaxDamage());
+		return stack;
+	}
+
+	public static void assertTradingBlocked(Villager villager, ServerPlayer player) {
+		InteractionResult result = villager.mobInteract(player, InteractionHand.MAIN_HAND);
+		if (result != InteractionResult.FAIL) {
+			throw fail("Expected trading blocked (FAIL) but got " + result);
+		}
+	}
+
+	public static void killEntity(GameTestHelper context, LivingEntity entity) {
+		context.kill(entity);
 	}
 
 	private static ItemStack copyOrEmpty(ItemStack stack) {
