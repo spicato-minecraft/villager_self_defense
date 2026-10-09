@@ -1,18 +1,23 @@
 package villager_self_defense.gametest;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -26,7 +31,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.server.level.ClientInformation;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.DefenseMovementSpeed;
@@ -37,6 +41,8 @@ import villager_self_defense.gear.VillagerGearStash;
 import villager_self_defense.gear.VillagerGearSync;
 import villager_self_defense.health.VillagerHealthRegenHolder;
 import villager_self_defense.health.VillagerHealthRegenPolicy;
+import villager_self_defense.gametest.mixin.MobPickupInvoker;
+import villager_self_defense.gametest.mixin.VillagerTradeInvoker;
 import villager_self_defense.mixin.VillagerAccessorMixin;
 
 import java.util.ArrayList;
@@ -101,15 +107,15 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static ServerPlayer spawnSurvivalPlayer(GameTestHelper context, int x, int y, int z) {
 		ServerLevel level = context.getLevel();
-		GameProfile profile = new GameProfile(UUID.randomUUID(), "GameTestPlayer");
-		ServerPlayer player = new ServerPlayer(
-				level.getServer(),
-				level,
-				profile,
-				ClientInformation.createDefault()
-		);
-		player.setPos(x + 0.5, y, z + 0.5);
-		level.addFreshEntity(player);
+		GameProfile profile = new GameProfile(UUID.randomUUID(), "test-survival-player");
+		CommonListenerCookie cookie = CommonListenerCookie.createInitial(profile, false);
+		ServerPlayer player = new ServerPlayer(level.getServer(), level, profile, cookie.clientInformation());
+		Connection connection = new Connection(PacketFlow.SERVERBOUND);
+		new EmbeddedChannel(connection);
+		level.getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
+		player.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+		var pos = context.absolutePos(new net.minecraft.core.BlockPos(x, y, z));
+		player.setPos(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
 		return player;
 	}
 
@@ -131,6 +137,23 @@ public final class VillagerSelfDefenseGameTestHelper {
 		if (!villager.hurtServer(level, source, amount)) {
 			throw fail("Failed to apply player damage to villager");
 		}
+	}
+
+	public static void startTrading(Villager villager, Player player) {
+		((VillagerTradeInvoker) villager).villager_self_defense$invokeStartTrading(player);
+	}
+
+	public static void pickUpItem(Villager villager, ServerLevel level, ItemEntity item) {
+		((MobPickupInvoker) villager).villager_self_defense$invokePickUpItem(level, item);
+	}
+
+	public static void clearHurtCooldown(LivingEntity entity) {
+		entity.invulnerableTime = 0;
+	}
+
+	public static void hitFromPlayer(GameTestHelper context, Villager villager, Player player) {
+		clearHurtCooldown(villager);
+		damageFromPlayer(context, villager, player, 1.0f);
 	}
 
 	public static void damageVillagerForRegenTest(GameTestHelper context, Villager villager, float amount) {
@@ -330,6 +353,13 @@ public final class VillagerSelfDefenseGameTestHelper {
 
 	public static void assertMainHandEquipped(Villager villager, ItemStack expected) {
 		assertArmorEquipped(villager, EquipmentSlot.MAINHAND, expected);
+	}
+
+	public static void assertMovementModifierApplied(Villager villager) {
+		AttributeInstance movement = villager.getAttribute(Attributes.MOVEMENT_SPEED);
+		if (movement == null || movement.getModifier(DefenseMovementSpeed.MODIFIER_ID) == null) {
+			throw fail("Defense movement modifier missing");
+		}
 	}
 
 	public static void assertMovementModifierRemoved(Villager villager) {

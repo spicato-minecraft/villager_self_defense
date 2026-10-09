@@ -3,7 +3,7 @@ package villager_self_defense;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -26,7 +26,7 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig.set(ModConfig.load());
-		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+		LivingEntityRenderLayerRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
 				ArmorModelSet<HumanoidModel<HumanoidRenderState>> armor = ArmorModelSet.bake(
 					ModelLayers.PLAYER_ARMOR,

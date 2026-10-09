@@ -1,15 +1,15 @@
 # Villager Self Defense
 
-Fabric mod for Minecraft **1.21.11** that gives villagers defensive behavior (implementation TBD).
+Fabric mod for Minecraft **26.1** that gives villagers defensive behavior, merchant gear slots, and related client UI.
 
 ## Compatibility
 
 | Component    | Version        |
 |-------------|----------------|
-| Minecraft   | 1.21.11        |
+| Minecraft   | 26.1           |
 | Fabric Loader | 0.19.3+      |
-| Fabric API  | 0.141.6+1.21.11 |
-| Java        | 21+            |
+| Fabric API  | 0.145.1+26.1   |
+| Java        | 25+            |
 
 ## Build
 
@@ -19,12 +19,12 @@ From this directory:
 ./gradlew build
 ```
 
-The output JAR is at `build/libs/villager_self_defense-1.0.1.jar` (version from `gradle.properties`).
+The output JAR is at `build/libs/villager_self_defense-1.2.0.jar` (version from `gradle.properties`).
 
 ## Install
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 1.21.11.
-2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for 1.21.11 and place it in your mods folder.
+1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft 26.1.
+2. Download [Fabric API](https://modrinth.com/mod/fabric-api) for 26.1 and place it in your mods folder.
 3. Copy the built JAR into your Minecraft `mods` folder (`.minecraft/mods` on most setups).
 
 ## Development

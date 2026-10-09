@@ -1,9 +1,14 @@
 package villager_self_defense.brain;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.world.entity.ai.ActivityData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromAttackTargetIfTargetOutOfReach;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.schedule.Activity;
 
@@ -15,13 +20,20 @@ public final class ModDefenseActivities {
 	private ModDefenseActivities() {}
 
 	public static void registerDefenseActivity(Brain<Villager> brain) {
-		brain.addActivity(
+		ActivityData<Villager> fight = ActivityData.create(
 			Activity.FIGHT,
 			DefenseBrainHooks.DEFENSE_FIGHT_PRIORITY,
 			ImmutableList.of(
 				SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
 				MeleeAttack.create(20)
-			)
+			),
+			ImmutableSet.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT))
+		);
+		brain.addActivity(
+			fight.activityType(),
+			fight.behaviorPriorityPairs(),
+			fight.conditions(),
+			fight.memoriesToEraseWhenStopped()
 		);
 	}
 }

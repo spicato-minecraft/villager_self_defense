@@ -40,7 +40,7 @@ public final class AllyDefenseNotifier {
 		double radiusSq = radius * radius;
 		AABB box = victim.getBoundingBox().inflate(radius);
 		var candidates = level.getEntitiesOfClass(Villager.class, box, v ->
-			v != victim && !v.isBaby() && v.isAlive() && !DefenseManager.getState(v).lowHealthFleeActive);
+			v != victim && v.isAlive() && canAnswerDistress(v, config));
 		candidates.sort(Comparator.comparingDouble(v -> v.distanceToSqr(victim)));
 
 		int notified = 0;
@@ -52,7 +52,7 @@ public final class AllyDefenseNotifier {
 				break;
 			}
 			VillagerDefenseState allyState = DefenseManager.getState(ally);
-			if (allyState.lowHealthFleeActive) {
+			if (!canAnswerDistress(ally, config)) {
 				continue;
 			}
 			UUID attackerId = attacker.getUUID();
@@ -76,6 +76,17 @@ public final class AllyDefenseNotifier {
 		if (notified > 0) {
 			LAST_NOTIFY_TICK_BY_PAIR.put(pairKey, time);
 		}
+	}
+
+	/**
+	 * A neighbor answers only when they could enter defense themselves: adult, not already fleeing,
+	 * and above the low-health threshold. Wounded villagers still raise their own distress call.
+	 */
+	private static boolean canAnswerDistress(Villager villager, ModConfig config) {
+		if (DefenseManager.getState(villager).lowHealthFleeActive) {
+			return false;
+		}
+		return DefenseEligibility.shouldEnterDefense(villager, config);
 	}
 
 	/**

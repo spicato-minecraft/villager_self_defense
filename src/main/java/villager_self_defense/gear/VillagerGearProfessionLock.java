@@ -22,19 +22,20 @@ public final class VillagerGearProfessionLock {
 	/**
 	 * True once the player has completed at least one trade with this merchant (profession lock).
 	 * <p>
-	 * On the integrated client, {@link Merchant#getOffers()} often does not report {@code uses &gt; 0} on the trader
-	 * entity even after a trade, so for {@link Villager} we also check {@link Villager#getVillagerXp()} (synced).
+	 * Offer uses drop back to zero when a villager restocks, while {@link Merchant#getVillagerXp()} stays positive.
+	 * The trade screen's merchant is a client-side copy, not the {@link Villager}, so XP has to be read from
+	 * {@link Merchant} itself. That XP is what the offers packet syncs.
 	 */
 	public static boolean hasCompletedMerchantTrade(Merchant merchant) {
+		if (merchant instanceof Villager villager && villager.level().isClientSide()) {
+			return villager.getVillagerXp() > 0;
+		}
 		for (var offer : merchant.getOffers()) {
 			if (offer.getUses() > 0) {
 				return true;
 			}
 		}
-		if (merchant instanceof Villager v) {
-			return v.getVillagerXp() > 0;
-		}
-		return false;
+		return merchant.getVillagerXp() > 0;
 	}
 
 	/**

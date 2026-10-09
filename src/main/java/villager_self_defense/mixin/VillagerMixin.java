@@ -1,6 +1,5 @@
 package villager_self_defense.mixin;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +8,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -20,7 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import villager_self_defense.brain.ModDefenseActivities;
@@ -32,7 +29,6 @@ import villager_self_defense.gear.VillagerGearSync;
 import villager_self_defense.health.VillagerHealthRegen;
 import villager_self_defense.health.VillagerHealthRegenHolder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,31 +139,6 @@ public abstract class VillagerMixin implements VillagerGearStashHolder, Villager
 	@Inject(method = "defineSynchedData", at = @At("TAIL"))
 	private void villager_self_defense$defineDefenseData(SynchedEntityData.Builder builder, CallbackInfo ci) {
 		builder.define(VillagerDefenseEntityData.DEFENSE_ACTIVE, false);
-	}
-
-	/**
-	 * Vanilla villagers omit combat memories; {@link net.minecraft.world.entity.ai.Brain#setMemory} ignores
-	 * unregistered modules, so {@link MemoryModuleType#ATTACK_TARGET} was never stored and {@link net.minecraft.world.entity.ai.behavior.MeleeAttack} never ran.
-	 * <p>
-	 * The first argument to {@link Brain#provider} is {@link Collection} at runtime (see bytecode), so the handler must use
-	 * {@code Collection} — not {@link ImmutableList} — or Mixin rejects the injection.
-	 */
-	@ModifyArg(
-		method = "brainProvider",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/ai/Brain;provider(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/world/entity/ai/Brain$Provider;"
-		),
-		index = 0
-	)
-	private static Collection<? extends MemoryModuleType<?>> villager_self_defense$addCombatMemories(
-		Collection<? extends MemoryModuleType<?>> memoryTypes
-	) {
-		return ImmutableList.<MemoryModuleType<?>>builder()
-			.addAll(memoryTypes)
-			.add(MemoryModuleType.ATTACK_TARGET)
-			.add(MemoryModuleType.ATTACK_COOLING_DOWN)
-			.build();
 	}
 
 	/**

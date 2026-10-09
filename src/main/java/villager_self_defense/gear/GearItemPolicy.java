@@ -38,7 +38,7 @@ public final class GearItemPolicy {
 			if (eq.slot() != slot) {
 				return false;
 			}
-			if (!eq.canBeEquippedBy(EntityType.VILLAGER)) {
+			if (!eq.canBeEquippedBy(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(EntityType.VILLAGER))) {
 				return false;
 			}
 			return true;
