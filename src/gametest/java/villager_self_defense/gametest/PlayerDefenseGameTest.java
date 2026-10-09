@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.level.GameType;
 import villager_self_defense.config.ModConfig;
@@ -93,7 +93,7 @@ public class PlayerDefenseGameTest {
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 		var neighbor = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 2);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 
 		context.succeedWhen(() -> {
@@ -112,7 +112,7 @@ public class PlayerDefenseGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		zombie.setNoAi(true);
 		zombie.setInvulnerable(true);
 		VillagerSelfDefenseGameTestHelper.populateGearStash(
@@ -148,7 +148,7 @@ public class PlayerDefenseGameTest {
 			throw VillagerSelfDefenseGameTestHelper.fail("Expected an open merchant menu before defense");
 		}
 
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 2);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 2);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 
 		context.succeedWhen(() -> {

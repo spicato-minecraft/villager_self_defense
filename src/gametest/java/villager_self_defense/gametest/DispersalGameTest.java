@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -74,7 +74,7 @@ public class DispersalGameTest {
 		VillagerSelfDefenseGameTestHelper.applyTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 
 		DefenseMeleeContext.set(villager);
@@ -92,7 +92,7 @@ public class DispersalGameTest {
 	}
 
 	private static LivingEntity threat(GameTestHelper context, int x, int y, int z) {
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, x, y, z);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, x, y, z);
 		zombie.setInvulnerable(true);
 		return zombie;
 	}

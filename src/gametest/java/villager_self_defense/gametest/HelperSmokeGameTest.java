@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
@@ -43,7 +43,7 @@ public class HelperSmokeGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 
 		context.succeedWhen(() -> {

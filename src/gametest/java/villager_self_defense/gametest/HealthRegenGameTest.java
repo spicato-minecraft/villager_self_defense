@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.health.VillagerHealthRegenPolicy;
@@ -50,7 +50,7 @@ public class HealthRegenGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		marker.setNoAi(true);
 
 		long[] defendStart = {0L};

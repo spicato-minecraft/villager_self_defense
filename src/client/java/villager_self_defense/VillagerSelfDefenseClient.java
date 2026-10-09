@@ -10,7 +10,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import villager_self_defense.client.ClientGearProfessionCache;
 import villager_self_defense.client.render.VillagerArmorLayer;
 import villager_self_defense.client.render.VillagerDefenseHandLayer;
@@ -27,7 +27,7 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig.set(ModConfig.load());
 		LivingEntityRenderLayerRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
-			if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
+			if (entityType == EntityTypes.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
 				ArmorModelSet<HumanoidModel<HumanoidRenderState>> armor = ArmorModelSet.bake(
 					ModelLayers.PLAYER_ARMOR,
 					context.getModelSet(),
@@ -43,7 +43,7 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 			context.client().execute(() -> ClientGearProfessionCacheAccess.put(payload.entityId(), payload.gearUiAllowed()));
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			boolean now = client.screen instanceof MerchantScreen;
+			boolean now = client.gui.screen() instanceof MerchantScreen;
 			if (wasMerchantScreen && !now) {
 				ClientGearProfessionCacheAccess.clearAll();
 			}

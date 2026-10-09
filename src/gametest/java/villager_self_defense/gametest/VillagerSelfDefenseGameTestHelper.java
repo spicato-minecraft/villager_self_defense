@@ -15,6 +15,7 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -102,7 +103,7 @@ public final class VillagerSelfDefenseGameTestHelper {
 	}
 
 	private static Villager spawnVillager(GameTestHelper context, int x, int y, int z) {
-		return (Villager) context.spawn(EntityType.VILLAGER, x, y, z);
+		return (Villager) context.spawn(EntityTypes.VILLAGER, x, y, z);
 	}
 
 	public static ServerPlayer spawnSurvivalPlayer(GameTestHelper context, int x, int y, int z) {

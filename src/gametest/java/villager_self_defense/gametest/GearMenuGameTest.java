@@ -3,7 +3,7 @@ package villager_self_defense.gametest;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.Slot;
@@ -70,7 +70,7 @@ public class GearMenuGameTest {
 	public void wanderingTraderHasNoGearUi(GameTestHelper context) {
 		VillagerSelfDefenseGameTestHelper.applyTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
-		WanderingTrader trader = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.WANDERING_TRADER, 1, 1, 1);
+		WanderingTrader trader = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.WANDERING_TRADER, 1, 1, 1);
 		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
 		MerchantMenu menu = menu(player, trader);
 		putSword(menu);

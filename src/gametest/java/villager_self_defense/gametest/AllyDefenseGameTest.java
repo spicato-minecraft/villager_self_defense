@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.villager.Villager;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
@@ -124,7 +124,7 @@ public class AllyDefenseGameTest {
 	}
 
 	private static net.minecraft.world.entity.LivingEntity spawnThreat(GameTestHelper context, int x, int y, int z) {
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, x, y, z);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, x, y, z);
 		zombie.setInvulnerable(true);
 		return zombie;
 	}

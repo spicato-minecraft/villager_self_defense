@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 
@@ -20,7 +20,7 @@ public class LowHealthFleeGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 6.0f);
@@ -39,7 +39,7 @@ public class LowHealthFleeGameTest {
 
 		var victim = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 2, 1, 2);
 		var ally = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 2, 1, 3);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 3, 1, 2);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 3, 1, 2);
 
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(victim, 6.0f);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, victim, zombie, 1.0f);
@@ -57,7 +57,7 @@ public class LowHealthFleeGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 6.0f);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
@@ -78,7 +78,7 @@ public class LowHealthFleeGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 6.0f);
@@ -94,7 +94,7 @@ public class LowHealthFleeGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnBabyVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 

@@ -1,7 +1,7 @@
 package villager_self_defense.defense;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -177,6 +177,6 @@ class DefenseDispersalTest {
 	}
 
 	private static void stubMonster(Zombie zombie) {
-		when(zombie.getType()).thenAnswer(invocation -> EntityType.ZOMBIE);
+		when(zombie.getType()).thenAnswer(invocation -> EntityTypes.ZOMBIE);
 	}
 }

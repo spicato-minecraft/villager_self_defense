@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.entity.state.VillagerRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.ClientSideMerchant;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.trading.ItemCost;
@@ -46,7 +46,7 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		try (var world = context.worldBuilder().create()) {
-			world.getClientLevel().waitForChunksDownload();
+			world.getConnection().waitForChunksDownload();
 			int lockedId = spawnTrader(world.getServer(), true);
 			context.waitFor(client -> client.level.getEntity(lockedId) instanceof Villager);
 			openTrade(context, true);
@@ -67,7 +67,7 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 		return server.computeOnServer(minecraft -> {
 			ServerPlayer player = minecraft.getPlayerList().getPlayers().getFirst();
 			ServerLevel level = player.level();
-			Villager villager = EntityType.VILLAGER.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+			Villager villager = EntityTypes.VILLAGER.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
 			if (villager == null) {
 				throw new AssertionError("Failed to create villager");
 			}
@@ -95,14 +95,14 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 			}
 			MerchantMenu menu = new MerchantMenu(1, player.getInventory(), merchant);
 			menu.setOffers(merchant.getOffers());
-			client.setScreen(new MerchantScreen(menu, player.getInventory(), Component.literal("Villager")));
+			client.gui.setScreen(new MerchantScreen(menu, player.getInventory(), Component.literal("Villager")));
 		});
 		context.waitTick();
 	}
 
 	private static void assertLockedTrade(ClientGameTestContext context) {
 		context.runOnClient(client -> {
-			if (!(client.screen instanceof MerchantScreen screen)) {
+			if (!(client.gui.screen() instanceof MerchantScreen screen)) {
 				throw new AssertionError("Expected the locked villager trade screen");
 			}
 			int width = ((AbstractContainerScreenAccessor) screen).villager_self_defense$getImageWidth();
@@ -121,7 +121,7 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 
 	private static void assertUnlockedTrade(ClientGameTestContext context) {
 		context.runOnClient(client -> {
-			if (!(client.screen instanceof MerchantScreen screen)) {
+			if (!(client.gui.screen() instanceof MerchantScreen screen)) {
 				throw new AssertionError("Expected the unlocked villager trade screen");
 			}
 			int width = ((AbstractContainerScreenAccessor) screen).villager_self_defense$getImageWidth();
@@ -136,7 +136,7 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 
 	private static void assertDrawerHover(ClientGameTestContext context) {
 		context.runOnClient(client -> {
-			if (!(client.screen instanceof MerchantScreen screen)) {
+			if (!(client.gui.screen() instanceof MerchantScreen screen)) {
 				throw new AssertionError("Expected a trade screen for the drawer check");
 			}
 			MerchantGearDrawerButton button = findGearButton(screen);

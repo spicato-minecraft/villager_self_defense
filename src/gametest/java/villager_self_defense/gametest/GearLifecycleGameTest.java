@@ -1,5 +1,6 @@
 package villager_self_defense.gametest;
 
+import net.minecraft.world.entity.EntityTypes;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -69,7 +70,7 @@ public class GearLifecycleGameTest {
 		VillagerSelfDefenseGameTestHelper.applyTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, net.minecraft.world.entity.EntityType.ZOMBIE, 2, 1, 1);
+		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, net.minecraft.world.entity.EntityTypes.ZOMBIE, 2, 1, 1);
 		ItemStack sword = VillagerSelfDefenseGameTestHelper.ironSword();
 		sword.set(DataComponents.DAMAGE, 1);
 		VillagerSelfDefenseGameTestHelper.populateGearStash(

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import villager_self_defense.brain.ModDefenseActivities;
+import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.DefenseMeleeContext;
 import villager_self_defense.defense.VillagerDefenseEntityData;
@@ -169,6 +171,28 @@ public abstract class VillagerMixin implements VillagerGearStashHolder, Villager
 		DefenseManager.tick(level, self);
 		VillagerHealthRegen.tick(level, self);
 		DefenseMeleeContext.clear();
+	}
+
+	/**
+	 * Villager pickup does not call {@link net.minecraft.world.entity.Mob#pickUpItem}. Keep the trade-screen
+	 * block and post-pickup gear sync on the method villagers actually run.
+	 */
+	@Inject(method = "pickUpItem", at = @At("HEAD"), cancellable = true)
+	private void villager_self_defense$blockPickupWhileTrading(ServerLevel level, ItemEntity itemEntity, CallbackInfo ci) {
+		if (!ModConfig.get().gearMenuEnabled) {
+			return;
+		}
+		if (((Villager) (Object) this).getTradingPlayer() != null) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(method = "pickUpItem", at = @At("TAIL"))
+	private void villager_self_defense$syncGearAfterPickup(ServerLevel level, ItemEntity itemEntity, CallbackInfo ci) {
+		if (!ModConfig.get().gearMenuEnabled) {
+			return;
+		}
+		VillagerGearSync.syncStashToEquipment((Villager) (Object) this);
 	}
 
 	@Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
