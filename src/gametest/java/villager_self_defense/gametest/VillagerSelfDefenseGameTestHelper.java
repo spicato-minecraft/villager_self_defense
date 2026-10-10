@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -155,6 +156,20 @@ public final class VillagerSelfDefenseGameTestHelper {
 	public static void hitFromPlayer(GameTestHelper context, Villager villager, Player player) {
 		clearHurtCooldown(villager);
 		damageFromPlayer(context, villager, player, 1.0f);
+	}
+
+	/** Player-owned arrow damage, so projectile hits go through the same hurt path as melee. */
+	public static void hitFromPlayerArrow(GameTestHelper context, Villager villager, Player player) {
+		clearHurtCooldown(villager);
+		ServerLevel level = context.getLevel();
+		Arrow arrow = new Arrow(level, player, new ItemStack(Items.ARROW), new ItemStack(Items.BOW));
+		if (!level.addFreshEntity(arrow)) {
+			throw fail("Failed to spawn the player's arrow");
+		}
+		DamageSource source = level.damageSources().arrow(arrow, player);
+		if (!villager.hurtServer(level, source, 1.0f)) {
+			throw fail("Failed to apply arrow damage from the player");
+		}
 	}
 
 	public static void damageVillagerForRegenTest(GameTestHelper context, Villager villager, float amount) {

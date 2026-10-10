@@ -3,7 +3,11 @@ package villager_self_defense.clientgametest;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
@@ -32,6 +36,7 @@ import villager_self_defense.client.render.VillagerRenderStateArmorAccess;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.gear.VillagerGearDrawerLayout;
 import villager_self_defense.gear.VillagerGearGui;
+import villager_self_defense.gear.VillagerGearProfessionLock;
 import villager_self_defense.gear.VillagerGearSlot;
 import villager_self_defense.mixin.client.AbstractContainerScreenAccessor;
 
@@ -116,7 +121,64 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 			if (findGearButton(screen) == null) {
 				throw new AssertionError("Locked profession trade screen is missing the gear button");
 			}
+			titleUsesWidenedCenter(screen, client);
 		});
+	}
+
+	private static void titleUsesWidenedCenter(MerchantScreen screen, Minecraft client) {
+		int width = ((AbstractContainerScreenAccessor) screen).villager_self_defense$getImageWidth();
+		int centerWidth = VillagerGearDrawerLayout.titleCenterImageWidth(
+			width,
+			VillagerGearProfessionLock.shouldShowMerchantGearSlots()
+		);
+		int actualX = villagerTitleX(screen, client);
+		int expectedX = 49 + centerWidth / 2 - client.font.width(screen.getTitle()) / 2;
+		if (actualX != expectedX) {
+			throw new AssertionError(
+				"Villager title x " + actualX + " does not match layout center " + expectedX + " for widened width " + width
+			);
+		}
+	}
+
+	private static int villagerTitleX(MerchantScreen screen, Minecraft client) {
+		try {
+			Method method = null;
+			Class<?> type = screen.getClass();
+			while (type != null && method == null) {
+				try {
+					method = type.getDeclaredMethod("extractLabels", GuiGraphicsExtractor.class, int.class, int.class);
+				} catch (NoSuchMethodException ignored) {
+					type = type.getSuperclass();
+				}
+			}
+			if (method == null) {
+				throw new NoSuchMethodException("extractLabels");
+			}
+			method.setAccessible(true);
+			TitleProbe probe = new TitleProbe(client);
+			method.invoke(screen, probe, 0, 0);
+			if (probe.titleX == Integer.MIN_VALUE) {
+				throw new AssertionError("Villager title was not drawn");
+			}
+			return probe.titleX;
+		} catch (ReflectiveOperationException e) {
+			throw new AssertionError("Could not read the villager title position", e);
+		}
+	}
+
+	private static final class TitleProbe extends GuiGraphicsExtractor {
+		private int titleX = Integer.MIN_VALUE;
+
+		private TitleProbe(Minecraft minecraft) {
+			super(minecraft, new GuiRenderState(), 0, 0);
+		}
+
+		@Override
+		public void text(Font font, Component str, int x, int y, int color, boolean dropShadow) {
+			if (this.titleX == Integer.MIN_VALUE && y == 6) {
+				this.titleX = x;
+			}
+		}
 	}
 
 	private static void assertUnlockedTrade(ClientGameTestContext context) {

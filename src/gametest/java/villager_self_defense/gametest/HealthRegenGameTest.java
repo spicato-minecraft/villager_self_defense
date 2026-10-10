@@ -154,4 +154,45 @@ public class HealthRegenGameTest {
 			}
 		});
 	}
+
+	@GameTest(maxTicks = 200, setupTicks = 250)
+	public void healthRegenOff(GameTestHelper context) {
+		ModConfig config = VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
+		boolean previousHealthRegen = config.healthRegenEnabled;
+		config.healthRegenEnabled = false;
+		ModConfig.set(config);
+		DefenseManager.setConfig(config);
+
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+
+		long[] damageTime = {0L};
+		int[] phase = {-1};
+		long waitTicks = VillagerSelfDefenseGameTestHelper.TEST_HEALTH_REGEN_COOLDOWN_TICKS
+				+ VillagerHealthRegenPolicy.HEAL_INTERVAL_TICKS
+				+ 5L;
+
+		context.succeedWhen(() -> {
+			ModConfig live = ModConfig.get();
+			live.healthRegenEnabled = false;
+			ModConfig.set(live);
+			DefenseManager.setConfig(live);
+
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting to confirm regen stays off");
+			}
+
+			long elapsed = context.getLevel().getGameTime() - damageTime[0];
+			if (elapsed < waitTicks) {
+				throw VillagerSelfDefenseGameTestHelper.fail("Waiting to confirm regen stays off");
+			}
+			VillagerSelfDefenseGameTestHelper.assertVillagerHealth(villager, 19.0f);
+			live.healthRegenEnabled = previousHealthRegen;
+			ModConfig.set(live);
+			DefenseManager.setConfig(live);
+		});
+	}
 }

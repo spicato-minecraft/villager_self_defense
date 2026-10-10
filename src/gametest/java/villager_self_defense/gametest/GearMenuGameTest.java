@@ -8,6 +8,7 @@ import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.Merchant;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
@@ -45,6 +46,29 @@ public class GearMenuGameTest {
 		}
 		if (!player.getInventory().contains(VillagerSelfDefenseGameTestHelper.ironSword())) {
 			throw VillagerSelfDefenseGameTestHelper.fail("Gear shift-click did not move the sword into the player inventory");
+		}
+		context.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	public void gearRejectsJunk(GameTestHelper context) {
+		VillagerSelfDefenseGameTestHelper.applyTestConfig();
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+		villager.setVillagerXp(1);
+		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
+		player.getInventory().setItem(0, new ItemStack(Items.DIRT));
+
+		MerchantMenu menu = menu(player, villager);
+		menu.quickMoveStack(player, 30);
+		if (!player.getInventory().contains(new ItemStack(Items.DIRT))) {
+			throw VillagerSelfDefenseGameTestHelper.fail("Shift-click removed dirt from the player inventory");
+		}
+		for (int i = 0; i < VillagerGearGui.GEAR_SLOT_COUNT; i++) {
+			ItemStack gear = menu.getSlot(VillagerGearGui.FIRST_GEAR_SLOT_INDEX + i).getItem();
+			if (gear.is(Items.DIRT)) {
+				throw VillagerSelfDefenseGameTestHelper.fail("Gear slot accepted dirt");
+			}
 		}
 		context.succeed();
 	}

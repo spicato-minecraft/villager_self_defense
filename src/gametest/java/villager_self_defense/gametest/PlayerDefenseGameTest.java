@@ -38,6 +38,39 @@ public class PlayerDefenseGameTest {
 	}
 
 	@GameTest(maxTicks = 40)
+	public void twoHitsDoNotActivate(GameTestHelper context) {
+		VillagerSelfDefenseGameTestHelper.applyTestConfig();
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+
+		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
+
+		VillagerSelfDefenseGameTestHelper.hitFromPlayer(context, villager, player);
+		VillagerSelfDefenseGameTestHelper.hitFromPlayer(context, villager, player);
+
+		context.succeedWhen(() -> VillagerSelfDefenseGameTestHelper.assertDefenseActive(villager, false));
+	}
+
+	@GameTest(maxTicks = 40)
+	public void arrowCountsAsPlayerHit(GameTestHelper context) {
+		VillagerSelfDefenseGameTestHelper.applyTestConfig();
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+
+		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
+
+		VillagerSelfDefenseGameTestHelper.hitFromPlayerArrow(context, villager, player);
+		VillagerSelfDefenseGameTestHelper.hitFromPlayerArrow(context, villager, player);
+		VillagerSelfDefenseGameTestHelper.assertDefenseActive(villager, false);
+		VillagerSelfDefenseGameTestHelper.hitFromPlayerArrow(context, villager, player);
+
+		context.succeedWhen(() -> {
+			VillagerSelfDefenseGameTestHelper.assertDefenseActive(villager, true);
+			VillagerSelfDefenseGameTestHelper.assertAttackTarget(villager, player);
+		});
+	}
+
+	@GameTest(maxTicks = 40)
 	public void ignoredPlayersNeverActivate(GameTestHelper context) {
 		VillagerSelfDefenseGameTestHelper.applyTestConfig();
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 4);
