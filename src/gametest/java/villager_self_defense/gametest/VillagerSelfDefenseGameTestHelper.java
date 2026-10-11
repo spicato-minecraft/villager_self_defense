@@ -150,7 +150,8 @@ public final class VillagerSelfDefenseGameTestHelper {
 	}
 
 	public static void clearHurtCooldown(LivingEntity entity) {
-		entity.invulnerableTime = 0;
+		// 26.3 moved hurt i-frames from invulnerableTime to this field.
+		entity.damageCooldownTime = 0;
 	}
 
 	public static void hitFromPlayer(GameTestHelper context, Villager villager, Player player) {

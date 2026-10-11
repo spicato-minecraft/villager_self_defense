@@ -147,7 +147,7 @@ public class PlayerDefenseGameTest {
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		zombie.setNoAi(true);
-		zombie.setInvulnerable(true);
+		zombie.setPermanentlyInvulnerable(true);
 		VillagerSelfDefenseGameTestHelper.populateGearStash(
 			villager,
 			net.minecraft.world.item.ItemStack.EMPTY,

@@ -18,7 +18,7 @@ public class FleeFollowupGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
-		zombie.setInvulnerable(true);
+		zombie.setPermanentlyInvulnerable(true);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 6.0f);
 
@@ -43,7 +43,7 @@ public class FleeFollowupGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
 		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
-		zombie.setInvulnerable(true);
+		zombie.setPermanentlyInvulnerable(true);
 		VillagerSelfDefenseGameTestHelper.damageFromMob(context, villager, zombie, 1.0f);
 		VillagerSelfDefenseGameTestHelper.setVillagerHealth(villager, 6.0f);
 

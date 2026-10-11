@@ -119,7 +119,7 @@ public class DispersalGameTest {
 
 	private static LivingEntity threat(GameTestHelper context, int x, int y, int z) {
 		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, x, y, z);
-		zombie.setInvulnerable(true);
+		zombie.setPermanentlyInvulnerable(true);
 		return zombie;
 	}
 }

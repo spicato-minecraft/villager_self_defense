@@ -125,7 +125,7 @@ public class AllyDefenseGameTest {
 
 	private static net.minecraft.world.entity.LivingEntity spawnThreat(GameTestHelper context, int x, int y, int z) {
 		var zombie = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, x, y, z);
-		zombie.setInvulnerable(true);
+		zombie.setPermanentlyInvulnerable(true);
 		return zombie;
 	}
 }
