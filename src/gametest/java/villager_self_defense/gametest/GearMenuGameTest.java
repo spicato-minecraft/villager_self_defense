@@ -13,6 +13,7 @@ import net.minecraft.world.item.trading.Merchant;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.gear.VillagerGearGui;
+import villager_self_defense.gear.VillagerGearProfessionLock;
 import villager_self_defense.gear.VillagerGearSlot;
 
 /**
@@ -97,10 +98,34 @@ public class GearMenuGameTest {
 		WanderingTrader trader = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.WANDERING_TRADER, 1, 1, 1);
 		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
 		MerchantMenu menu = menu(player, trader);
+		if (VillagerGearProfessionLock.shouldShowMerchantGearUi(trader)) {
+			throw VillagerSelfDefenseGameTestHelper.fail("Wandering trader enabled the gear menu");
+		}
 		putSword(menu);
 		menu.quickMoveStack(player, VillagerGearGui.FIRST_GEAR_SLOT_INDEX);
 		if (!menu.getSlot(VillagerGearGui.FIRST_GEAR_SLOT_INDEX).hasItem()) {
 			throw VillagerSelfDefenseGameTestHelper.fail("Wandering trader gear slot accepted a shift-click");
+		}
+		context.succeed();
+	}
+
+	@GameTest(maxTicks = 20)
+	public void wanderingTraderGearStaysOffWithoutProfessionLock(GameTestHelper context) {
+		ModConfig config = VillagerSelfDefenseGameTestHelper.applyTestConfig();
+		config.gearRequiresLockedProfession = false;
+		ModConfig.set(config);
+		DefenseManager.setConfig(config);
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+		WanderingTrader trader = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.WANDERING_TRADER, 1, 1, 1);
+		ServerPlayer player = VillagerSelfDefenseGameTestHelper.spawnSurvivalPlayer(context, 2, 1, 1);
+		MerchantMenu menu = menu(player, trader);
+		if (VillagerGearProfessionLock.shouldShowMerchantGearUi(trader)) {
+			throw VillagerSelfDefenseGameTestHelper.fail("Wandering trader enabled the gear menu when profession lock is off");
+		}
+		putSword(menu);
+		menu.quickMoveStack(player, VillagerGearGui.FIRST_GEAR_SLOT_INDEX);
+		if (!menu.getSlot(VillagerGearGui.FIRST_GEAR_SLOT_INDEX).hasItem()) {
+			throw VillagerSelfDefenseGameTestHelper.fail("Wandering trader gear slot accepted a shift-click when profession lock is off");
 		}
 		context.succeed();
 	}

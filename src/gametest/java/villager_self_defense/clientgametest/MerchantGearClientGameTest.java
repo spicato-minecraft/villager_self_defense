@@ -65,6 +65,10 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 			openTrade(context, true);
 			assertDrawerHover(context);
 			assertArmorAndCrossedArms(context, lockedId);
+
+			context.setScreen(() -> null);
+			openTrade(context, true, false);
+			assertWanderingTraderTrade(context);
 		}
 	}
 
@@ -88,6 +92,10 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 	}
 
 	private static void openTrade(ClientGameTestContext context, boolean lockedProfession) {
+		openTrade(context, lockedProfession, true);
+	}
+
+	private static void openTrade(ClientGameTestContext context, boolean lockedProfession, boolean showsVillagerProgress) {
 		context.runOnClient(client -> {
 			var player = client.player;
 			ClientSideMerchant merchant = new ClientSideMerchant(player);
@@ -100,6 +108,7 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 			}
 			MerchantMenu menu = new MerchantMenu(1, player.getInventory(), merchant);
 			menu.setOffers(merchant.getOffers());
+			menu.setShowProgressBar(showsVillagerProgress);
 			client.gui.setScreen(new MerchantScreen(menu, player.getInventory(), Component.literal("Villager")));
 		});
 		context.waitTick();
@@ -179,6 +188,17 @@ public class MerchantGearClientGameTest implements FabricClientGameTest {
 				this.titleX = x;
 			}
 		}
+	}
+
+	private static void assertWanderingTraderTrade(ClientGameTestContext context) {
+		context.runOnClient(client -> {
+			if (!(client.gui.screen() instanceof MerchantScreen screen)) {
+				throw new AssertionError("Expected the wandering trader trade screen");
+			}
+			if (findGearButton(screen) != null) {
+				throw new AssertionError("Gear button showed for a wandering trader");
+			}
+		});
 	}
 
 	private static void assertUnlockedTrade(ClientGameTestContext context) {
