@@ -19,7 +19,7 @@ From this directory:
 ./gradlew build
 ```
 
-The output JAR is at `build/libs/villager_self_defense-1.2.0.jar` (version from `gradle.properties`).
+The output JAR is at `build/libs/villager_self_defense-1.3.0.jar` (version from `gradle.properties`).
 
 ## Install
 
