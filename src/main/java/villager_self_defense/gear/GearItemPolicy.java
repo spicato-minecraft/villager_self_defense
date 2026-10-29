@@ -5,7 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.Equippable;
@@ -38,7 +38,7 @@ public final class GearItemPolicy {
 			if (eq.slot() != slot) {
 				return false;
 			}
-			if (!eq.canBeEquippedBy(EntityType.VILLAGER)) {
+			if (!eq.canBeEquippedBy(BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(EntityTypes.VILLAGER))) {
 				return false;
 			}
 			return true;

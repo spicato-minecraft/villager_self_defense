@@ -2,7 +2,7 @@ package villager_self_defense.gametest;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.health.VillagerHealthRegenPolicy;
@@ -50,7 +50,7 @@ public class HealthRegenGameTest {
 		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
 
 		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
-		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityType.ZOMBIE, 2, 1, 1);
+		var marker = VillagerSelfDefenseGameTestHelper.spawnMob(context, EntityTypes.ZOMBIE, 2, 1, 1);
 		marker.setNoAi(true);
 
 		long[] defendStart = {0L};
@@ -152,6 +152,47 @@ public class HealthRegenGameTest {
 			if (villager.getHealth() > 19.01f) {
 				throw VillagerSelfDefenseGameTestHelper.fail("Baby villager received mod regen");
 			}
+		});
+	}
+
+	@GameTest(maxTicks = 200, setupTicks = 250)
+	public void healthRegenOff(GameTestHelper context) {
+		ModConfig config = VillagerSelfDefenseGameTestHelper.applyHealthRegenTestConfig();
+		boolean previousHealthRegen = config.healthRegenEnabled;
+		config.healthRegenEnabled = false;
+		ModConfig.set(config);
+		DefenseManager.setConfig(config);
+
+		VillagerSelfDefenseGameTestHelper.buildFloor(context, 3);
+		var villager = VillagerSelfDefenseGameTestHelper.spawnAdultVillager(context, 1, 1, 1);
+
+		long[] damageTime = {0L};
+		int[] phase = {-1};
+		long waitTicks = VillagerSelfDefenseGameTestHelper.TEST_HEALTH_REGEN_COOLDOWN_TICKS
+				+ VillagerHealthRegenPolicy.HEAL_INTERVAL_TICKS
+				+ 5L;
+
+		context.succeedWhen(() -> {
+			ModConfig live = ModConfig.get();
+			live.healthRegenEnabled = false;
+			ModConfig.set(live);
+			DefenseManager.setConfig(live);
+
+			if (phase[0] == -1) {
+				VillagerSelfDefenseGameTestHelper.woundVillagerForRegenTest(context, villager, 19.0f);
+				damageTime[0] = context.getLevel().getGameTime();
+				phase[0] = 0;
+				throw VillagerSelfDefenseGameTestHelper.fail("Wounded villager, waiting to confirm regen stays off");
+			}
+
+			long elapsed = context.getLevel().getGameTime() - damageTime[0];
+			if (elapsed < waitTicks) {
+				throw VillagerSelfDefenseGameTestHelper.fail("Waiting to confirm regen stays off");
+			}
+			VillagerSelfDefenseGameTestHelper.assertVillagerHealth(villager, 19.0f);
+			live.healthRegenEnabled = previousHealthRegen;
+			ModConfig.set(live);
+			DefenseManager.setConfig(live);
 		});
 	}
 }

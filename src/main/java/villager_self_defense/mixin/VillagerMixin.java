@@ -1,6 +1,5 @@
 package villager_self_defense.mixin;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
@@ -9,8 +8,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,10 +19,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import villager_self_defense.brain.ModDefenseActivities;
+import villager_self_defense.config.ModConfig;
 import villager_self_defense.defense.DefenseManager;
 import villager_self_defense.defense.DefenseMeleeContext;
 import villager_self_defense.defense.VillagerDefenseEntityData;
@@ -32,7 +31,6 @@ import villager_self_defense.gear.VillagerGearSync;
 import villager_self_defense.health.VillagerHealthRegen;
 import villager_self_defense.health.VillagerHealthRegenHolder;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -146,31 +144,6 @@ public abstract class VillagerMixin implements VillagerGearStashHolder, Villager
 	}
 
 	/**
-	 * Vanilla villagers omit combat memories; {@link net.minecraft.world.entity.ai.Brain#setMemory} ignores
-	 * unregistered modules, so {@link MemoryModuleType#ATTACK_TARGET} was never stored and {@link net.minecraft.world.entity.ai.behavior.MeleeAttack} never ran.
-	 * <p>
-	 * The first argument to {@link Brain#provider} is {@link Collection} at runtime (see bytecode), so the handler must use
-	 * {@code Collection} — not {@link ImmutableList} — or Mixin rejects the injection.
-	 */
-	@ModifyArg(
-		method = "brainProvider",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/world/entity/ai/Brain;provider(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/world/entity/ai/Brain$Provider;"
-		),
-		index = 0
-	)
-	private static Collection<? extends MemoryModuleType<?>> villager_self_defense$addCombatMemories(
-		Collection<? extends MemoryModuleType<?>> memoryTypes
-	) {
-		return ImmutableList.<MemoryModuleType<?>>builder()
-			.addAll(memoryTypes)
-			.add(MemoryModuleType.ATTACK_TARGET)
-			.add(MemoryModuleType.ATTACK_COOLING_DOWN)
-			.build();
-	}
-
-	/**
 	 * {@link net.minecraft.world.entity.ai.behavior.MeleeAttack} calls {@link net.minecraft.world.entity.Mob#doHurtTarget}, which uses
 	 * {@link Attributes#ATTACK_DAMAGE} plus {@link net.minecraft.world.entity.LivingEntity#getWeaponItem()} (main hand). Tier 2 gear equips via
 	 * {@link villager_self_defense.mixin.MerchantMenuMixin} slots; weapon damage and {@link net.minecraft.world.item.ItemStack#hurtEnemy} apply without extra hooks.
@@ -198,6 +171,28 @@ public abstract class VillagerMixin implements VillagerGearStashHolder, Villager
 		DefenseManager.tick(level, self);
 		VillagerHealthRegen.tick(level, self);
 		DefenseMeleeContext.clear();
+	}
+
+	/**
+	 * Villager pickup does not call {@link net.minecraft.world.entity.Mob#pickUpItem}. Keep the trade-screen
+	 * block and post-pickup gear sync on the method villagers actually run.
+	 */
+	@Inject(method = "pickUpItem", at = @At("HEAD"), cancellable = true)
+	private void villager_self_defense$blockPickupWhileTrading(ServerLevel level, ItemEntity itemEntity, CallbackInfo ci) {
+		if (!ModConfig.get().gearMenuEnabled) {
+			return;
+		}
+		if (((Villager) (Object) this).getTradingPlayer() != null) {
+			ci.cancel();
+		}
+	}
+
+	@Inject(method = "pickUpItem", at = @At("TAIL"))
+	private void villager_self_defense$syncGearAfterPickup(ServerLevel level, ItemEntity itemEntity, CallbackInfo ci) {
+		if (!ModConfig.get().gearMenuEnabled) {
+			return;
+		}
+		VillagerGearSync.syncStashToEquipment((Villager) (Object) this);
 	}
 
 	@Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)

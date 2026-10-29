@@ -3,14 +3,14 @@ package villager_self_defense;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.VillagerRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import villager_self_defense.client.ClientGearProfessionCache;
 import villager_self_defense.client.render.VillagerArmorLayer;
 import villager_self_defense.client.render.VillagerDefenseHandLayer;
@@ -26,8 +26,8 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig.set(ModConfig.load());
-		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
-			if (entityType == EntityType.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
+		LivingEntityRenderLayerRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+			if (entityType == EntityTypes.VILLAGER && entityRenderer instanceof VillagerRenderer villagerRenderer) {
 				ArmorModelSet<HumanoidModel<HumanoidRenderState>> armor = ArmorModelSet.bake(
 					ModelLayers.PLAYER_ARMOR,
 					context.getModelSet(),
@@ -43,7 +43,7 @@ public class VillagerSelfDefenseClient implements ClientModInitializer {
 			context.client().execute(() -> ClientGearProfessionCacheAccess.put(payload.entityId(), payload.gearUiAllowed()));
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			boolean now = client.screen instanceof MerchantScreen;
+			boolean now = client.gui.screen() instanceof MerchantScreen;
 			if (wasMerchantScreen && !now) {
 				ClientGearProfessionCacheAccess.clearAll();
 			}

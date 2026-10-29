@@ -9,12 +9,26 @@
 			"villager_self_defense.gametest.HelperSmokeGameTest",
 			"villager_self_defense.gametest.InfraSmokeGameTest",
 			"villager_self_defense.gametest.LowHealthFleeGameTest",
-			"villager_self_defense.gametest.HealthRegenGameTest"
+			"villager_self_defense.gametest.HealthRegenGameTest",
+			"villager_self_defense.gametest.PlayerDefenseGameTest",
+			"villager_self_defense.gametest.AllyDefenseGameTest",
+			"villager_self_defense.gametest.DispersalGameTest",
+			"villager_self_defense.gametest.GearMenuGameTest",
+			"villager_self_defense.gametest.GearLifecycleGameTest",
+			"villager_self_defense.gametest.FleeFollowupGameTest",
+			"villager_self_defense.gametest.ServerMixinApplySweepGameTest"
+		],
+		"fabric-client-gametest": [
+			"villager_self_defense.clientgametest.ClientMixinApplySweepGameTest",
+			"villager_self_defense.clientgametest.MerchantGearClientGameTest"
 		]
 	},
+	"mixins": [
+		"villager_self_defense_test.mixins.json"
+	],
 	"depends": {
 		"villager_self_defense": "*",
 		"fabric-api": "*",
-		"minecraft": "~1.21.10"
+		"minecraft": "~26.3"
 	}
 }

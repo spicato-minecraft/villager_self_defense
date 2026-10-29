@@ -52,8 +52,8 @@ public class VillagerDefenseHandLayer extends RenderLayer<VillagerRenderState, V
 		}
 		poseStack.pushPose();
 		this.handModel.translateToHand(armedState, arm, poseStack);
-		poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+		poseStack.rotateDegrees(Axis.XP, -90.0F);
+		poseStack.rotateDegrees(Axis.YP, 180.0F);
 		boolean left = arm == HumanoidArm.LEFT;
 		poseStack.translate((left ? -1 : 1) / 16.0F, 0.125F, -0.625F);
 		itemStackRenderState.submit(poseStack, submitNodeCollector, light, OverlayTexture.NO_OVERLAY, armedState.outlineColor);

@@ -24,7 +24,7 @@ public class VillagerSelfDefense implements ModInitializer {
 		VillagerDefenseEntityData.ensureRegistered();
 		ModConfig config = ModConfig.load();
 		ModConfig.set(config);
-		PayloadTypeRegistry.playS2C().register(GearProfessionLockS2CPayload.TYPE, GearProfessionLockS2CPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(GearProfessionLockS2CPayload.TYPE, GearProfessionLockS2CPayload.CODEC);
 		DefenseManager.setConfig(config);
 		DamageHandler.register();
 		VillagerHealthRegenDamageHandler.register();

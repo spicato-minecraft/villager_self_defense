@@ -1,6 +1,7 @@
 package villager_self_defense.gear;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.npc.ClientSideMerchant;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
 import net.minecraft.world.item.trading.Merchant;
@@ -22,19 +23,20 @@ public final class VillagerGearProfessionLock {
 	/**
 	 * True once the player has completed at least one trade with this merchant (profession lock).
 	 * <p>
-	 * On the integrated client, {@link Merchant#getOffers()} often does not report {@code uses &gt; 0} on the trader
-	 * entity even after a trade, so for {@link Villager} we also check {@link Villager#getVillagerXp()} (synced).
+	 * Offer uses drop back to zero when a villager restocks, while {@link Merchant#getVillagerXp()} stays positive.
+	 * The trade screen's merchant is a client-side copy, not the {@link Villager}, so XP has to be read from
+	 * {@link Merchant} itself. That XP is what the offers packet syncs.
 	 */
 	public static boolean hasCompletedMerchantTrade(Merchant merchant) {
+		if (merchant instanceof Villager villager && villager.level().isClientSide()) {
+			return villager.getVillagerXp() > 0;
+		}
 		for (var offer : merchant.getOffers()) {
 			if (offer.getUses() > 0) {
 				return true;
 			}
 		}
-		if (merchant instanceof Villager v) {
-			return v.getVillagerXp() > 0;
-		}
-		return false;
+		return merchant.getVillagerXp() > 0;
 	}
 
 	/**
@@ -50,16 +52,27 @@ public final class VillagerGearProfessionLock {
 	 */
 	public static boolean gearUiAllowedForMerchant(Merchant merchant) {
 		ModConfig cfg = ModConfig.get();
-		if (!cfg.gearMenuEnabled) {
+		if (!cfg.gearMenuEnabled || !isGearMerchant(merchant)) {
 			return false;
 		}
 		if (!cfg.gearRequiresLockedProfession) {
 			return true;
 		}
+		return hasCompletedMerchantTrade(merchant);
+	}
+
+	/**
+	 * Wandering traders never get the gear menu, even when profession lock is off.
+	 * Their client copy is a {@link ClientSideMerchant} whose progress flag stays clear.
+	 */
+	private static boolean isGearMerchant(Merchant merchant) {
 		if (merchant instanceof WanderingTrader) {
 			return false;
 		}
-		return hasCompletedMerchantTrade(merchant);
+		if (merchant instanceof ClientSideMerchant) {
+			return ClientMerchantProgress.showsVillagerProgress(merchant);
+		}
+		return true;
 	}
 
 	private static boolean isLogicalClient(Merchant merchant) {
@@ -73,11 +86,11 @@ public final class VillagerGearProfessionLock {
 	 */
 	public static boolean gearInteractionsBlockedUntilLock(Merchant merchant) {
 		ModConfig cfg = ModConfig.get();
+		if (!isGearMerchant(merchant)) {
+			return true;
+		}
 		if (!cfg.gearRequiresLockedProfession) {
 			return false;
-		}
-		if (merchant instanceof WanderingTrader) {
-			return true;
 		}
 		if (isLogicalClient(merchant) && merchant instanceof Villager v) {
 			Boolean cached = ClientGearProfessionCacheAccess.get(v.getId());
@@ -106,14 +119,11 @@ public final class VillagerGearProfessionLock {
 	 */
 	public static boolean shouldShowMerchantGearUi(Merchant merchant) {
 		ModConfig cfg = ModConfig.get();
-		if (!cfg.gearMenuEnabled) {
+		if (!cfg.gearMenuEnabled || !isGearMerchant(merchant)) {
 			return false;
 		}
 		if (!cfg.gearRequiresLockedProfession) {
 			return true;
-		}
-		if (merchant instanceof WanderingTrader) {
-			return false;
 		}
 		if (isLogicalClient(merchant) && merchant instanceof Villager v) {
 			Boolean cached = ClientGearProfessionCacheAccess.get(v.getId());

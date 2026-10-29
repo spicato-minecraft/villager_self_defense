@@ -42,9 +42,7 @@ class ModConfigMigrationTest {
 		config.lowHealthFleeEnabled = false;
 		config.lowHealthFleeThreshold = 0.0;
 
-		Method migrate = ModConfig.class.getDeclaredMethod("applyDefaultsForMissingKeys", JsonObject.class, ModConfig.class);
-		migrate.setAccessible(true);
-		migrate.invoke(null, root, config);
+		invokeMigration(root, config);
 
 		assertTrue(config.lowHealthFleeEnabled);
 		assertEquals(1.0 / 3.0, config.lowHealthFleeThreshold, 0.001);
@@ -71,6 +69,25 @@ class ModConfigMigrationTest {
 	}
 
 	@Test
+	void applyDefaultsForMissingKeys_mapsLegacyPlayerActivation() throws Exception {
+		JsonObject root = new JsonObject();
+		root.addProperty("retaliateAgainstPlayers", false);
+
+		ModConfig config = new ModConfig();
+		config.playerActivationEnabled = true;
+		config.playerHitWindowSeconds = 0;
+		config.playerHitsToActivate = 0;
+		config.playerHitsWhileInDefense = 0;
+
+		invokeMigration(root, config);
+
+		assertFalse(config.playerActivationEnabled);
+		assertEquals(10, config.playerHitWindowSeconds);
+		assertEquals(3, config.playerHitsToActivate);
+		assertEquals(6, config.playerHitsWhileInDefense);
+	}
+
+	@Test
 	void applyDefaultsForMissingKeys_fillsHealthRegenDefaults() throws Exception {
 		JsonObject root = new JsonObject();
 		root.addProperty("mobDefenseEnabled", true);
@@ -79,11 +96,15 @@ class ModConfigMigrationTest {
 		config.healthRegenEnabled = false;
 		config.healthRegenCooldownTicks = 0;
 
-		Method migrate = ModConfig.class.getDeclaredMethod("applyDefaultsForMissingKeys", JsonObject.class, ModConfig.class);
-		migrate.setAccessible(true);
-		migrate.invoke(null, root, config);
+		invokeMigration(root, config);
 
 		assertTrue(config.healthRegenEnabled);
 		assertEquals(24000, config.healthRegenCooldownTicks);
+	}
+
+	private static void invokeMigration(JsonObject root, ModConfig config) throws Exception {
+		Method migrate = ModConfig.class.getDeclaredMethod("applyDefaultsForMissingKeys", JsonObject.class, ModConfig.class);
+		migrate.setAccessible(true);
+		migrate.invoke(null, root, config);
 	}
 }

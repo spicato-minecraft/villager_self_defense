@@ -16,6 +16,9 @@ public final class VillagerGearDrawerLayout {
 	/** Vertical spacing between stacked gear slots. */
 	public static final int SLOT_STEP_Y = 18;
 
+	/** Vanilla merchant GUI width. Title centering keeps this value when gear slots widen the screen. */
+	public static final int VANILLA_MERCHANT_IMAGE_WIDTH = 276;
+
 	private static final int PANEL_PADDING = 4;
 	private static final int PANEL_WIDTH = 24;
 	/** Matches legacy panel height: span of slot column plus bottom padding. */
@@ -69,6 +72,17 @@ public final class VillagerGearDrawerLayout {
 		int panelRight = ORIGIN_X - PANEL_PADDING + gearDrawerOffsetX + PANEL_WIDTH;
 		int iconRight = VillagerGearGui.ICON_X + gearIconOffsetX + VillagerGearGui.GEAR_ICON_BUTTON_WIDTH;
 		int maxRight = Math.max(slotRight, Math.max(panelRight, iconRight));
-		return Math.max(276, maxRight + 4);
+		return Math.max(VANILLA_MERCHANT_IMAGE_WIDTH, maxRight + 4);
+	}
+
+	/**
+	 * Width used to center the villager title. Gear slots widen {@code imageWidth}, but the XP bar stays at the
+	 * vanilla offset, so the title keeps the vanilla width while those slots are showing.
+	 */
+	public static int titleCenterImageWidth(int imageWidth, boolean gearSlotsShown) {
+		if (gearSlotsShown && imageWidth > VANILLA_MERCHANT_IMAGE_WIDTH) {
+			return VANILLA_MERCHANT_IMAGE_WIDTH;
+		}
+		return imageWidth;
 	}
 }

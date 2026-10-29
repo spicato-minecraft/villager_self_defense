@@ -13,7 +13,6 @@
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/villager_self_defense/icon.png",
-	"accessWidener": "villager_self_defense.accesswidener",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
@@ -31,9 +30,9 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.19.0",
-		"minecraft": "~1.21.11",
-		"java": ">=21",
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
 		"fabric-api": "*"
 	}
 }

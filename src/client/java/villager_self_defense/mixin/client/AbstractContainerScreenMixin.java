@@ -1,12 +1,12 @@
 package villager_self_defense.mixin.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.trading.Merchant;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,10 +27,11 @@ public abstract class AbstractContainerScreenMixin {
 	@Unique
 	private MerchantGearDrawerButton villager_self_defense$merchantGearButton;
 
+	// 26.1 made imageWidth final. Java 25 only allows writes from <init>, so drop final before the gear drawer widens it in init.
 	@Shadow
+	@Mutable
 	protected int imageWidth;
 
-	/** {@link MerchantScreen} does not declare {@code removed()} in bytecode (inherited only), so the inject lives here. */
 	@Inject(method = "removed", at = @At("HEAD"))
 	private void villager_self_defense$clearGearDrawerState(CallbackInfo ci) {
 		if (!((Object) this instanceof MerchantScreen self)) {
@@ -39,12 +40,6 @@ public abstract class AbstractContainerScreenMixin {
 		MerchantGearDrawerState.clear(self);
 	}
 
-	/**
-	 * Defer adding the gear button until {@link AbstractContainerScreen#containerTick()} so trade/XP sync can catch up
-	 * after {@link net.minecraft.client.gui.screens.Screen#init()}; retries each tick until {@link
-	 * VillagerGearProfessionLock#shouldShowMerchantGearUi} becomes true (e.g. after first trade). Must inject here, not
-	 * on {@link MerchantScreen}, because {@code containerTick} is declared on {@link AbstractContainerScreen}.
-	 */
 	@Inject(method = "containerTick", at = @At("HEAD"))
 	private void villager_self_defense$merchantGearButtonWhenUnlocked(CallbackInfo ci) {
 		if (!((Object) this instanceof MerchantScreen self)) {
@@ -70,15 +65,10 @@ public abstract class AbstractContainerScreenMixin {
 			VillagerGearGui.GEAR_ICON_BUTTON_HEIGHT,
 			self
 		);
-		self.addRenderableWidget(gearBtn);
+		((ScreenInvoker) (Object) self).villager_self_defense$invokeAddRenderableWidget(gearBtn);
 		villager_self_defense$merchantGearButton = gearBtn;
 	}
 
-	/**
-	 * Widen {@link AbstractContainerScreen#imageWidth} for {@link MerchantScreen} before {@code init} centers the
-	 * GUI, so gear slots (right of vanilla 276px) are not treated as "outside" clicks (THROW vs PICKUP). Field lives on
-	 * this class, not {@link MerchantScreen}, so this logic belongs here — not in a merchant-only mixin.
-	 */
 	@Inject(method = "init", at = @At("HEAD"))
 	private void villager_self_defense$widenMerchantGuiForGear(CallbackInfo ci) {
 		if (!((Object) this instanceof MerchantScreen)) {
@@ -96,20 +86,25 @@ public abstract class AbstractContainerScreenMixin {
 		}
 	}
 
-	/** Medium gray panel + light top/left, dark bottom/right — drawn before slots so it sits behind them. */
 	private static final int GEAR_DRAWER_PANEL_FILL = 0xFF8B8B8B;
 	private static final int GEAR_DRAWER_PANEL_EDGE_LIGHT = 0xFFE8E8E8;
 	private static final int GEAR_DRAWER_PANEL_EDGE_DARK = 0xFF3F3F3F;
 
 	@Inject(
-		method = "renderContents",
+		method = "extractContents",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlots(Lnet/minecraft/client/gui/GuiGraphics;II)V",
+			target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;extractSlots(Lnet/minecraft/client/gui/GuiGraphicsExtractor;II)V",
 			shift = At.Shift.BEFORE
 		)
 	)
-	private void villager_self_defense$gearDrawerPanelBehindSlots(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	private void villager_self_defense$gearDrawerPanelBehindSlots(
+			GuiGraphicsExtractor graphics,
+			int mouseX,
+			int mouseY,
+			float partialTick,
+			CallbackInfo ci
+	) {
 		if (!((Object) this instanceof MerchantScreen merchant)) {
 			return;
 		}
@@ -125,10 +120,10 @@ public abstract class AbstractContainerScreenMixin {
 		int pw = VillagerGearDrawerLayout.panelWidth();
 		int ph = VillagerGearDrawerLayout.panelHeight();
 		graphics.fill(px, py, px + pw, py + ph, GEAR_DRAWER_PANEL_FILL);
-		graphics.hLine(px, px + pw - 1, py, GEAR_DRAWER_PANEL_EDGE_LIGHT);
-		graphics.vLine(px, py, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_LIGHT);
-		graphics.hLine(px, px + pw - 1, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_DARK);
-		graphics.vLine(px + pw - 1, py, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_DARK);
+		graphics.horizontalLine(px, px + pw - 1, py, GEAR_DRAWER_PANEL_EDGE_LIGHT);
+		graphics.verticalLine(px, py, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_LIGHT);
+		graphics.horizontalLine(px, px + pw - 1, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_DARK);
+		graphics.verticalLine(px + pw - 1, py, py + ph - 1, GEAR_DRAWER_PANEL_EDGE_DARK);
 	}
 
 	@Inject(method = "getHoveredSlot", at = @At("RETURN"), cancellable = true)
@@ -144,7 +139,6 @@ public abstract class AbstractContainerScreenMixin {
 		if (slot == null) {
 			return;
 		}
-		// Slot.index is the index inside the backing Container (0–4 for gear), not the menu slot id (39–43).
 		if (!(slot instanceof VillagerGearSlot)) {
 			return;
 		}
@@ -153,8 +147,14 @@ public abstract class AbstractContainerScreenMixin {
 		}
 	}
 
-	@Inject(method = "renderSlot", at = @At("HEAD"), cancellable = true)
-	private void villager_self_defense$hideGearRender(GuiGraphics graphics, Slot slot, int mouseX, int mouseY, CallbackInfo ci) {
+	@Inject(method = "extractSlot", at = @At("HEAD"), cancellable = true)
+	private void villager_self_defense$hideGearRender(
+			GuiGraphicsExtractor graphics,
+			Slot slot,
+			int mouseX,
+			int mouseY,
+			CallbackInfo ci
+	) {
 		if (!((Object) this instanceof MerchantScreen merchant)) {
 			return;
 		}

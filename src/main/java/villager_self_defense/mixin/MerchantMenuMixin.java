@@ -1,6 +1,7 @@
 package villager_self_defense.mixin;
 
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.npc.ClientSideMerchant;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
@@ -15,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import villager_self_defense.gear.ClientMerchantProgress;
 import villager_self_defense.gear.VillagerGearContainer;
 import villager_self_defense.gear.VillagerGearDrawerLayout;
 import villager_self_defense.gear.VillagerGearGui;
@@ -58,6 +60,14 @@ public abstract class MerchantMenuMixin {
 		if (merchant instanceof Villager v && !v.level().isClientSide() && inv.player instanceof ServerPlayer sp) {
 			boolean allowed = VillagerGearProfessionLock.gearUiAllowedForMerchant(merchant);
 			ServerPlayNetworking.send(sp, new GearProfessionLockS2CPayload(v.getId(), allowed));
+		}
+	}
+
+	@Inject(method = "setShowProgressBar", at = @At("RETURN"))
+	private void villager_self_defense$rememberClientProgress(boolean show, CallbackInfo ci) {
+		Merchant trader = ((MerchantMenuAccessor) (Object) this).villager_self_defense$getTrader();
+		if (trader instanceof ClientSideMerchant) {
+			ClientMerchantProgress.setShowsVillagerProgress(trader, show);
 		}
 	}
 
