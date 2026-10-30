@@ -18,12 +18,13 @@ import villager_self_defense.defense.VillagerDefenseEntityData;
 @Mixin(VillagerRenderer.class)
 public abstract class VillagerRendererMixin {
 	/**
-	 * Scales {@link net.minecraft.client.renderer.entity.state.LivingEntityRenderState#walkAnimationSpeed} on the
-	 * embedded humanoid state. Full humanoid swing overshoots the villager model’s leg motion; tune here only (not
-	 * user config). Also affects defense hand pose via the same {@link HumanoidRenderState}.
+	 * {@link net.minecraft.client.model.npc.VillagerModel} swings legs at half the humanoid amplitude
+	 * ({@code 1.4 * walkAnimationSpeed * 0.5}). Armor uses {@link HumanoidModel}, so the copied speed is scaled by
+	 * that same {@code 0.5}. The error is proportional to speed, so a leftover fraction shows up more while running.
+	 * This state is also what defense-hand items swing with.
 	 */
 	@Unique
-	private static final float villager_self_defense$ARMOR_WALK_SWING_SCALE = 0.65F;
+	private static final float villager_self_defense$ARMOR_WALK_SWING_SCALE = 0.5F;
 
 	@Inject(method = "extractRenderState", at = @At("TAIL"))
 	private void villager_self_defense$fillHumanoidArmorState(Villager villager, VillagerRenderState state, float partialTick, CallbackInfo ci) {

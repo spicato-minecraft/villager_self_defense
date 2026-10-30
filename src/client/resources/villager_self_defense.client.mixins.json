@@ -10,7 +10,8 @@
 		"LivingEntityRendererAccessor",
 		"MerchantScreenMixin",
 		"VillagerRendererMixin",
-		"VillagerRenderStateMixin"
+		"VillagerRenderStateMixin",
+		"VillagerModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
